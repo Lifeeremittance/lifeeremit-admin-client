@@ -451,3 +451,8 @@ td {
   translate: 155px !important;
   margin-top: -20px;
 }
+
+.nav i {
+  width: 20px;
+  height: 20px;
+}

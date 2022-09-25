@@ -92,7 +92,7 @@ export const Verify: React.FC<Props> = () => {
       <b className="fs-3 paymit-logo">Paymit</b>
       <Form className="signup_form d-flex align-items-center flex-column bg-white p-4">
         <div className="text-center mb-4">
-          <b className="fs-6">Enter Passcode</b>
+          <b className="fs-5">Enter Passcode</b>
         </div>
         <Form.Group controlId="formBasicEmail">
           <Form.Label className="fw-bold">Passcode</Form.Label>
