@@ -78,7 +78,7 @@ export const Signin: React.FC<Props> = () => {
       <b className="fs-3 paymit-logo">Paymit</b>
       <Form className="signup_form d-flex align-items-center flex-column bg-white p-4">
         <div className="text-center mb-5">
-          <b className="fs-6">Login to your account</b>
+          <b className="fs-5">Login to your account</b>
         </div>
         <Form.Group controlId="formBasicEmail">
           <Form.Label className="fw-bold">Email Address</Form.Label>
