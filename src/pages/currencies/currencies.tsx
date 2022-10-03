@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Col,
@@ -7,9 +7,19 @@ import {
   Modal,
   Card,
   Form,
-  InputGroup,
 } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
+import { initializeApp } from "firebase/app";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { toast } from "react-toastify";
+import { createCurrency, getCurrencies } from "../../services/currency";
+import { createCountry } from "../../services/country";
+
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -17,11 +27,43 @@ type Props = {
 
 export const Currencies: React.FC<Props> = () => {
   const [show, setShow] = useState(false);
+  const [show2, setShow2] = useState(false);
+
+  const [image, setImage] = useState<any>({
+    preview: "",
+    raw: "",
+  });
+
+  const [currencyName, setCurrencyName] = useState("");
+  const [currencyCode, setCurrencyCode] = useState("");
+
+  const [countryName, setCountryName] = useState("");
+  const [countryCode, setCountryCode] = useState("");
+
+  const [currencies, setCurrencies] = useState<any>([]);
+
+  useEffect(() => {
+    getCurrencies()
+      .then((res) => {
+        setCurrencies(res);
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   type CustomToggleProps = {
     children: React.ReactNode;
     onClick: (event: any) => {};
   };
+
+  const firebaseConfig = {
+    // ...
+    storageBucket: "gs://lifeeremit-e7281.appspot.com",
+  };
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
 
   const CustomToggle = React.forwardRef(
     (props: CustomToggleProps, ref: React.Ref<HTMLAnchorElement>) => (
@@ -37,6 +79,67 @@ export const Currencies: React.FC<Props> = () => {
       </b>
     )
   );
+
+  const handleChange = (e: any) => {
+    if (e.target.files.length) {
+      setImage({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  const triggerFileInput = () => {
+    const hold = document?.getElementById("upload-button");
+    hold?.click();
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const storageRef = ref(storage, currencyName);
+    const uploadTask = uploadBytesResumable(storageRef, image.raw);
+    await uploadTask;
+    const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+    const response = await createCurrency(currencyName, currencyCode, photoUrl);
+    console.log(response);
+    if (response.status === 201) {
+      setCurrencies([...currencies, response.data.data]);
+      toast.success("Currency created successfully");
+      setShow(false);
+      setCurrencyName("");
+      setCurrencyCode("");
+      setImage({
+        preview: "",
+        raw: "",
+      });
+    } else {
+      toast.error(response);
+    }
+  };
+
+  const handleSubmit2 = async (e: any) => {
+    e.preventDefault();
+
+    const storageRef = ref(storage, countryName);
+    const uploadTask = uploadBytesResumable(storageRef, image.raw);
+    await uploadTask;
+    const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+    const response = await createCountry(countryName, countryCode, photoUrl);
+    console.log(response);
+    if (response.status === 201) {
+      toast.success("Country created successfully");
+      setShow2(false);
+      setCountryName("");
+      setCountryCode("");
+      setImage({
+        preview: "",
+        raw: "",
+      });
+    } else {
+      toast.error(response);
+    }
+  };
 
   return (
     <Container fluid className="vw-100 vh-100 body-bg">
@@ -178,422 +281,29 @@ export const Currencies: React.FC<Props> = () => {
 
           <div className="body-bg vh-90 py-5 px-3 y-scroll">
             <Container fluid>
-              <b className="fs-3">Rates</b>
+              {/* <b className="fs-3">Rates</b> */}
 
-              <Row className="mt-5">
-                <Col md={{ span: 8, offset: 4 }}>
-                  <Row className="text-center">
-                    <Col xs={3} className="fw-bold fs-5">
-                      USD
-                    </Col>
-                    <Col xs={3} className="fw-bold fs-5">
-                      EUR
-                    </Col>
-                    <Col xs={3} className="fw-bold fs-5">
-                      GBP
-                    </Col>
-                    <Col xs={3} className="fw-bold fs-5">
-                      ZAR
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-
-              <Row className="mt-4">
-                <Col md={4} className="d-flex align-items-center">
-                  <div className="d-flex align-items-center">
-                    <svg
-                      width="38"
-                      height="27"
-                      viewBox="0 0 38 27"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect
-                        x="0.705882"
-                        y="0.705882"
-                        width="36.5882"
-                        height="25.5882"
-                        rx="4.94118"
-                        fill="white"
-                        stroke="#F5F5F5"
-                        stroke-width="1.41176"
-                      />
-                      <mask
-                        id="mask0_258_1774"
-                        maskUnits="userSpaceOnUse"
-                        x="0"
-                        y="0"
-                        width="38"
-                        height="27"
-                      >
-                        <rect
-                          x="0.705882"
-                          y="0.705882"
-                          width="36.5882"
-                          height="25.5882"
-                          rx="4.94118"
-                          fill="white"
-                          stroke="white"
-                          stroke-width="1.41176"
-                        />
-                      </mask>
-                      <g mask="url(#mask0_258_1774)">
-                        <rect
-                          x="25.334"
-                          width="12.6667"
-                          height="27"
-                          fill="#189B62"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 27H12.6667V0H0V27Z"
-                          fill="#189B62"
-                        />
-                      </g>
-                    </svg>
-                    <span className="ms-3">NIGERIA (NGN)</span>
-                  </div>
-                </Col>
-                <Col md={8}>
-                  <Row className="bg-white py-3 text-center rate_card">
-                    <Col xs={3} className="fs-6">
-                      610
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      620
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      740
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      25
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-
-              <Row className="mt-3">
-                <Col md={4} className="d-flex align-items-center">
-                  <div className="d-flex align-items-center">
-                    <svg
-                      width="38"
-                      height="27"
-                      viewBox="0 0 38 27"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect width="38" height="27" rx="4" fill="white" />
-                      <mask
-                        id="mask0_258_1798"
-                        maskUnits="userSpaceOnUse"
-                        x="0"
-                        y="0"
-                        width="38"
-                        height="27"
-                      >
-                        <rect width="38" height="27" rx="4" fill="white" />
-                      </mask>
-                      <g mask="url(#mask0_258_1798)">
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 9H38V0H0V9Z"
-                          fill="#E71F37"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 27H38V18H0V27Z"
-                          fill="#118B56"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 18H38V9H0V18Z"
-                          fill="#FDD64C"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M19.0006 15.6759L16.3416 17.5907L17.3506 14.4834L14.6982 12.5596L17.9809 12.5539L19.0006 9.45013L20.0204 12.5539L23.303 12.5596L20.6506 14.4834L21.6597 17.5907L19.0006 15.6759Z"
-                          fill="#262626"
-                        />
-                      </g>
-                    </svg>
-
-                    <span className="ms-3">GHANA (GHS)</span>
-                  </div>
-                </Col>
-                <Col md={8}>
-                  <Row className="bg-white py-3 text-center rate_card">
-                    <Col xs={3} className="fs-6">
-                      9
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      9
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      10
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      0.47
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-
-              <Row className="mt-3">
-                <Col md={4} className="d-flex align-items-center">
-                  <div className="d-flex align-items-center">
-                    <svg
-                      width="38"
-                      height="27"
-                      viewBox="0 0 38 27"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect width="38" height="27" rx="4" fill="white" />
-                      <mask
-                        id="mask0_259_1817"
-                        maskUnits="userSpaceOnUse"
-                        x="0"
-                        y="0"
-                        width="38"
-                        height="27"
-                      >
-                        <rect width="38" height="27" rx="4" fill="white" />
-                      </mask>
-                      <g mask="url(#mask0_259_1817)">
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 7.2H38V0H0V7.2Z"
-                          fill="#262626"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 27H38V19.8H0V27Z"
-                          fill="#018301"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 19.8H38V7.19997H0V19.8Z"
-                          fill="white"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 18H38V9.00003H0V18Z"
-                          fill="#DC0808"
-                        />
-                        <ellipse
-                          cx="19.0004"
-                          cy="13.5"
-                          rx="4.52381"
-                          ry="9"
-                          fill="#BC0000"
-                        />
-                        <mask
-                          id="mask1_259_1817"
-                          maskUnits="userSpaceOnUse"
-                          x="14"
-                          y="4"
-                          width="10"
-                          height="19"
-                        >
-                          <ellipse
-                            cx="19.0004"
-                            cy="13.5"
-                            rx="4.52381"
-                            ry="9"
-                            fill="white"
+              <div className="grid-4">
+                {currencies.length > 0
+                  ? currencies.map(
+                      (
+                        currency: { currencyImage: string | undefined },
+                        index: React.Key | null | undefined
+                      ) => (
+                        <div className="currency_card" key={index}>
+                          <img
+                            src={currency.currencyImage}
+                            className="img-fluid"
+                            alt="money"
                           />
-                        </mask>
-                        <g mask="url(#mask1_259_1817)">
-                          <ellipse
-                            cx="11.7621"
-                            cy="13.4999"
-                            rx="4.52381"
-                            ry="9.9"
-                            fill="#262626"
-                          />
-                          <ellipse
-                            cx="26.2387"
-                            cy="13.4999"
-                            rx="4.52381"
-                            ry="9.9"
-                            fill="#262626"
-                          />
-                          <g filter="url(#filter0_d_259_1817)">
-                            <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
-                              d="M19.9052 7.19991C19.9052 9.18293 19.5023 10.7915 19.0044 10.7999C19.5023 10.8062 19.9052 12.0126 19.9052 13.4999C19.9052 14.991 19.5002 16.1999 19.0005 16.1999C18.5008 16.1999 18.0957 14.991 18.0957 13.4999C18.0957 12.0126 18.4987 10.8062 18.9965 10.7999C18.4987 10.7915 18.0957 9.18293 18.0957 7.19991C18.0957 5.21169 18.5008 3.59991 19.0005 3.59991C19.5002 3.59991 19.9052 5.21169 19.9052 7.19991ZM19.0005 16.1999C19.5002 16.1999 19.9052 17.8116 19.9052 19.7999C19.9052 21.7881 19.5002 23.3999 19.0005 23.3999C18.5008 23.3999 18.0957 21.7881 18.0957 19.7999C18.0957 17.8116 18.5008 16.1999 19.0005 16.1999Z"
-                              fill="url(#paint0_linear_259_1817)"
-                            />
-                          </g>
-                        </g>
-                      </g>
-                      <defs>
-                        <filter
-                          id="filter0_d_259_1817"
-                          x="18.0957"
-                          y="3.59991"
-                          width="1.80957"
-                          height="21.7999"
-                          filterUnits="userSpaceOnUse"
-                          color-interpolation-filters="sRGB"
-                        >
-                          <feFlood
-                            flood-opacity="0"
-                            result="BackgroundImageFix"
-                          />
-                          <feColorMatrix
-                            in="SourceAlpha"
-                            type="matrix"
-                            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                            result="hardAlpha"
-                          />
-                          <feOffset dy="2" />
-                          <feColorMatrix
-                            type="matrix"
-                            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0"
-                          />
-                          <feBlend
-                            mode="normal"
-                            in2="BackgroundImageFix"
-                            result="effect1_dropShadow_259_1817"
-                          />
-                          <feBlend
-                            mode="normal"
-                            in="SourceGraphic"
-                            in2="effect1_dropShadow_259_1817"
-                            result="shape"
-                          />
-                        </filter>
-                        <linearGradient
-                          id="paint0_linear_259_1817"
-                          x1="18.0957"
-                          y1="3.59991"
-                          x2="18.0957"
-                          y2="23.3999"
-                          gradientUnits="userSpaceOnUse"
-                        >
-                          <stop stop-color="white" />
-                          <stop offset="1" stop-color="#F0F0F0" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                        </div>
+                      )
+                    )
+                  : null}
+              </div>
 
-                    <span className="ms-3">KENYA (KSH)</span>
-                  </div>
-                </Col>
-                <Col md={8}>
-                  <Row className="bg-white py-3 text-center rate_card">
-                    <Col xs={3} className="fs-6">
-                      119
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      120
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      140
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      7
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-
-              <Row className="mt-3">
-                <Col md={4} className="d-flex align-items-center">
-                  <div className="d-flex align-items-center">
-                    <svg
-                      width="38"
-                      height="27"
-                      viewBox="0 0 38 27"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect width="38" height="27" rx="4" fill="#06A86E" />
-                      <mask
-                        id="mask0_259_1833"
-                        maskUnits="userSpaceOnUse"
-                        x="0"
-                        y="0"
-                        width="38"
-                        height="27"
-                      >
-                        <rect width="38" height="27" rx="4" fill="white" />
-                      </mask>
-                      <g mask="url(#mask0_259_1833)">
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0 3.60004L12.6667 13.5L0 23.4V3.60004Z"
-                          fill="#FFBF2E"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M-1.80957 4.04999L10.4047 13.5L-1.80957 22.95V4.04999Z"
-                          fill="#262626"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M16.2858 10.8L3.61914 0H38.0001V10.8H16.2858Z"
-                          fill="white"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M16.738 9L5.88086 0H37.9999V9H16.738Z"
-                          fill="#F44E46"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M3.61914 27H38.0001V16.2H16.2858L3.61914 27Z"
-                          fill="white"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M5.88086 27H37.9999V18H16.738L5.88086 27Z"
-                          fill="#072CB4"
-                        />
-                      </g>
-                    </svg>
-
-                    <span className="ms-3">SOUTH AFRICA (ZAR)</span>
-                  </div>
-                </Col>
-                <Col md={8}>
-                  <Row className="bg-white py-3 text-center rate_card">
-                    <Col xs={3} className="fs-6">
-                      17
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      18
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      21
-                    </Col>
-                    <Col xs={3} className="fs-6">
-                      -
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-
-              <Row className="mt-5">
-                <Col md={4} className="d-flex align-items-center">
+              <div className="d-flex align-items-center justify-content-between mt-5">
+                <div className="d-flex align-items-center mt-4">
                   <div
                     className="d-grid me-3 cursor-pointer"
                     style={{
@@ -618,9 +328,37 @@ export const Currencies: React.FC<Props> = () => {
                       />
                     </svg>
                   </div>
+                  Add Currency
+                </div>
+
+                <div className="d-flex align-items-center mt-4">
+                  <div
+                    className="d-grid me-3 cursor-pointer"
+                    style={{
+                      width: 40,
+                      height: 40,
+                      background: "#263238",
+                      borderRadius: "10px",
+                      placeContent: "center",
+                    }}
+                    onClick={() => setShow2(true)}
+                  >
+                    <svg
+                      width="21"
+                      height="21"
+                      viewBox="0 0 21 21"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M19.6875 9.1875H11.8125V1.3125C11.8125 0.964403 11.6742 0.630564 11.4281 0.384423C11.1819 0.138281 10.8481 0 10.5 0C10.1519 0 9.81806 0.138281 9.57192 0.384423C9.32578 0.630564 9.1875 0.964403 9.1875 1.3125V9.1875H1.3125C0.964403 9.1875 0.630564 9.32578 0.384423 9.57192C0.138281 9.81806 0 10.1519 0 10.5C0 10.8481 0.138281 11.1819 0.384423 11.4281C0.630564 11.6742 0.964403 11.8125 1.3125 11.8125H9.1875V19.6875C9.1875 20.0356 9.32578 20.3694 9.57192 20.6156C9.81806 20.8617 10.1519 21 10.5 21C10.8481 21 11.1819 20.8617 11.4281 20.6156C11.6742 20.3694 11.8125 20.0356 11.8125 19.6875V11.8125H19.6875C20.0356 11.8125 20.3694 11.6742 20.6156 11.4281C20.8617 11.1819 21 10.8481 21 10.5C21 10.1519 20.8617 9.81806 20.6156 9.57192C20.3694 9.32578 20.0356 9.1875 19.6875 9.1875Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </div>
                   Add Country
-                </Col>
-              </Row>
+                </div>
+              </div>
             </Container>
           </div>
         </Col>
@@ -637,7 +375,100 @@ export const Currencies: React.FC<Props> = () => {
         <Card className="details_modal_card p-3">
           <Card.Body>
             <div className="text-center mb-3">
-              <b className="fs-6">Add Country</b>
+              <b className="fs-5">Add Currency</b>
+            </div>
+
+            <Form>
+              <Form.Group controlId="formForPayment">
+                <Form.Label>
+                  <b>Currency Name</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  value={currencyName}
+                  onChange={(e) => setCurrencyName(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Currency Short Code</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  value={currencyCode}
+                  onChange={(e) => setCurrencyCode(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Input Image</b>
+                </Form.Label>
+                <div
+                  className="d-flex align-items-center justify-content-center to_upload cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  <span className="d-flex flex-column align-items-center w-100">
+                    {image.preview ? (
+                      <img
+                        src={image.preview}
+                        height="98px"
+                        width="98px"
+                        alt="profile"
+                        onClick={triggerFileInput}
+                      />
+                    ) : (
+                      <>
+                        <svg
+                          width="50"
+                          height="34"
+                          viewBox="0 0 50 34"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M40.3125 12.5833C38.8958 5.39583 32.5833 0 25 0C18.9792 0 13.75 3.41667 11.1458 8.41667C4.875 9.08333 0 14.3958 0 20.8333C0 27.7292 5.60417 33.3333 12.5 33.3333H39.5833C45.3333 33.3333 50 28.6667 50 22.9167C50 17.4167 45.7292 12.9583 40.3125 12.5833ZM39.5833 29.1667H12.5C7.89583 29.1667 4.16667 25.4375 4.16667 20.8333C4.16667 16.5625 7.35417 13 11.5833 12.5625L13.8125 12.3333L14.8542 10.3542C16.8333 6.54167 20.7083 4.16667 25 4.16667C30.4583 4.16667 35.1667 8.04167 36.2292 13.3958L36.8542 16.5208L40.0417 16.75C43.2917 16.9583 45.8333 19.6875 45.8333 22.9167C45.8333 26.3542 43.0208 29.1667 39.5833 29.1667ZM16.6667 18.75H21.9792V25H28.0208V18.75H33.3333L25 10.4167L16.6667 18.75Z"
+                            fill="#C7C7CC"
+                          />
+                        </svg>
+                        <span className="text-small">
+                          Upload Currency Image
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".png, .jpg, .jpeg"
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Form>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleSubmit}
+              >
+                Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show2}
+        onHide={() => setShow2(false)}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="small-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center mb-3">
+              <b className="fs-5">Add Country</b>
             </div>
 
             <Form>
@@ -645,36 +476,70 @@ export const Currencies: React.FC<Props> = () => {
                 <Form.Label>
                   <b>Country Name</b>
                 </Form.Label>
-                <Form.Control type="text" className="form_inputs mb-3 w-100" />
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  value={countryName}
+                  onChange={(e) => setCountryName(e.target.value)}
+                />
                 <Form.Label>
-                  <b>Select Flag</b>
+                  <b>Country Short Code</b>
                 </Form.Label>
-                <InputGroup className="country_group form_inputs d-flex align-items-center w-100">
-                  <InputGroup.Text
-                    id="basic-addon1"
-                    className="bg-white border-0 h-0"
-                  >
-                    🇳🇬
-                  </InputGroup.Text>
-                  <Form.Control
-                    aria-label="Country"
-                    aria-describedby="basic-addon1"
-                    className="border-0 h-0"
-                  />
-                  <InputGroup.Text
-                    id="basic-addon2"
-                    className="bg-white border-0 h-0"
-                  >
-                    <i className="fa fa-caret-down ms-1" aria-hidden="true"></i>
-                  </InputGroup.Text>
-                </InputGroup>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Input Flag</b>
+                </Form.Label>
+                <div
+                  className="d-flex align-items-center justify-content-center to_upload cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  <span className="d-flex flex-column align-items-center w-100">
+                    {image.preview ? (
+                      <img
+                        src={image.preview}
+                        height="98px"
+                        width="98px"
+                        alt="profile"
+                        onClick={triggerFileInput}
+                      />
+                    ) : (
+                      <>
+                        <svg
+                          width="50"
+                          height="34"
+                          viewBox="0 0 50 34"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M40.3125 12.5833C38.8958 5.39583 32.5833 0 25 0C18.9792 0 13.75 3.41667 11.1458 8.41667C4.875 9.08333 0 14.3958 0 20.8333C0 27.7292 5.60417 33.3333 12.5 33.3333H39.5833C45.3333 33.3333 50 28.6667 50 22.9167C50 17.4167 45.7292 12.9583 40.3125 12.5833ZM39.5833 29.1667H12.5C7.89583 29.1667 4.16667 25.4375 4.16667 20.8333C4.16667 16.5625 7.35417 13 11.5833 12.5625L13.8125 12.3333L14.8542 10.3542C16.8333 6.54167 20.7083 4.16667 25 4.16667C30.4583 4.16667 35.1667 8.04167 36.2292 13.3958L36.8542 16.5208L40.0417 16.75C43.2917 16.9583 45.8333 19.6875 45.8333 22.9167C45.8333 26.3542 43.0208 29.1667 39.5833 29.1667ZM16.6667 18.75H21.9792V25H28.0208V18.75H33.3333L25 10.4167L16.6667 18.75Z"
+                            fill="#C7C7CC"
+                          />
+                        </svg>
+                        <span className="text-small">Upload Flag</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".png, .jpg, .jpeg"
+                  onChange={handleChange}
+                />
               </Form.Group>
             </Form>
 
             <div className="text-center mt-4">
               <button
                 className="btn btn_theme btn_theme2 w-50"
-                onClick={() => setShow(false)}
+                onClick={handleSubmit2}
               >
                 Done
               </button>

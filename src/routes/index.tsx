@@ -4,7 +4,7 @@ import { Signin, Verify } from "../pages/signin";
 import { Overview } from "../pages/overview";
 import { Transactions } from "../pages/transactions";
 import { Customers, CustomerProfile } from "../pages/customers";
-import { Products, Product } from "../pages/products";
+import { Providers, Provider, Products } from "../pages/products";
 import { Currencies } from "../pages/currencies";
 import { Landing } from "../pages/landing";
 
@@ -21,8 +21,9 @@ const AppRouter = () => {
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/customers" element={<Customers />} />
       <Route path="/customers/:id" element={<CustomerProfile />} />
-      <Route path="/products" element={<Products />} />
-      <Route path="/products/:id" element={<Product />} />
+      <Route path="/products" element={<Providers />} />
+      <Route path="/products/:id" element={<Provider />} />
+      <Route path="/products/list/:id/:name" element={<Products />} />
       <Route path="/currencies" element={<Currencies />} />
     </Routes>
   );

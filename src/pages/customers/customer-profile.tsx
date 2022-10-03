@@ -1,13 +1,47 @@
-import React from "react";
-import { Container, Col, Row, Dropdown, Table, Card } from "react-bootstrap";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Col,
+  Row,
+  Dropdown,
+  Table,
+  Card,
+  Modal,
+} from "react-bootstrap";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { getUserById } from "../../services/user";
+import { getCustomerOrders } from "../../services/order";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
 };
 
 export const CustomerProfile: React.FC<Props> = () => {
+  const [customer, setCustomer] = useState<any>({});
+  const [orders, setOrders] = useState<any>([]);
+  const [details, setDetails] = useState<boolean>(false);
+
+  const { id } = useParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getUserById(id)
+      .then((res) => {
+        setCustomer(res);
+        console.log(res);
+
+        getCustomerOrders(id)
+          .then((res) => {
+            setOrders(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [id]);
 
   type CustomToggleProps = {
     children: React.ReactNode;
@@ -31,10 +65,8 @@ export const CustomerProfile: React.FC<Props> = () => {
 
   const menu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
-      <Dropdown.Item eventKey="1">
-        <Link to="/customers/1" className="text-dark no-underline">
-          View Details
-        </Link>
+      <Dropdown.Item eventKey="1" onClick={() => setDetails(true)}>
+        View Details
       </Dropdown.Item>
     </Dropdown.Menu>
   );
@@ -195,34 +227,42 @@ export const CustomerProfile: React.FC<Props> = () => {
                     <div className="d-flex flex-column">
                       <div className="mb-3">
                         <div className="fs-6 text-grey">Name</div>
-                        <div className="fs-6 fw-bold">Peter Tinumu</div>
+                        <div className="fs-6 fw-bold">
+                          {customer.fullName ? customer.fullName : "-"}
+                        </div>
                       </div>
                       <div className="mb-3">
                         <div className="fs-6 text-grey">Email</div>
                         <div className="fs-6 fw-bold">
-                          petertinubu@gmail.com
+                          {customer.email_address}
                         </div>
                       </div>
                       <div className="mb-3">
                         <div className="fs-6 text-grey">Company</div>
-                        <div className="fs-6 fw-bold">Business Name Plc</div>
+                        <div className="fs-6 fw-bold">
+                          {customer.companyName}
+                        </div>
                       </div>
                     </div>
                     <div className="d-flex flex-column">
                       <div className="mb-3">
                         <div className="fs-6 text-grey">Phone Number</div>
-                        <div className="fs-6 fw-bold">09013723232</div>
+                        <div className="fs-6 fw-bold">
+                          {customer.phone_number}
+                        </div>
                       </div>
                       <div className="mb-3">
                         <div className="fs-6 text-grey">Address</div>
-                        <div className="fs-6 fw-bold">Ikoyi, Lagos</div>
+                        <div className="fs-6 fw-bold">{customer.address}</div>
                       </div>
                       <div className="mb-3">
                         <div className="fs-6 text-grey mb-2">
                           NO of Transactions
                         </div>
                         <div className="fs-6 fw-bold">
-                          <span className="p-2 body-bg rounded">4.</span>
+                          <span className="p-2 body-bg rounded">
+                            {orders.length}.
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -625,117 +665,196 @@ export const CustomerProfile: React.FC<Props> = () => {
             </Container>
 
             <b className="fs-6">Transactions</b>
-            <Table className="text-smaller">
-              <thead>
-                <tr className="text-muted">
-                  <th>#</th>
-                  <th>COMPANY NAME</th>
-                  <th>PROVIDER</th>
-                  <th>PRODUCT</th>
-                  <th>DATE</th>
-                  <th>Tot. Value</th>
-                  <th># RATE</th>
-                  <th>AMOUNT PAID</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="transaction_row">
-                  <td>PM001</td>
-                  <td>Business name plc</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>$200</td>
-                  <td>#600</td>
-                  <td>#120,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-                <br />
-                <tr className="transaction_row">
-                  <td>PM002</td>
-                  <td>Business name plc</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>$200</td>
-                  <td>#600</td>
-                  <td>#120,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-                <br />
-                <tr className="transaction_row">
-                  <td>PM003</td>
-                  <td>Business name plc</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>$200</td>
-                  <td>#600</td>
-                  <td>#120,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-                <br />
-                <tr className="transaction_row">
-                  <td>PM004</td>
-                  <td>Software business</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>E180</td>
-                  <td>#710</td>
-                  <td>#127,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-              </tbody>
-            </Table>
+            {orders.length > 0 ? (
+              <Table className="text-smaller">
+                <thead>
+                  <tr className="text-muted">
+                    <th>#</th>
+                    <th>COMPANY NAME</th>
+                    <th>PROVIDER</th>
+                    <th>PRODUCT</th>
+                    <th>DATE</th>
+                    <th>Tot. Value</th>
+                    <th># RATE</th>
+                    <th>AMOUNT PAID</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order: any, index: any) => {
+                    const d = new Date(order.created_at);
+                    const date = d.toLocaleString("en-US", {
+                      day: "numeric",
+                      year: "numeric",
+                      month: "short",
+                    });
+                    return (
+                      <>
+                        <tr className="transaction_row" key={index}>
+                          <td>PM00{index + 1}</td>
+                          <td>{order.company_name}</td>
+                          <td>{order.provider.name}</td>
+                          <td>{order.product.name}</td>
+                          <td>{date}</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>{order.amount ? "#" + order.amount : "-"}</td>
+                          <td>
+                            <Dropdown>
+                              <Dropdown.Toggle
+                                as={CustomToggle}
+                                id="dropdown-custom-components"
+                                split
+                              >
+                                ...
+                              </Dropdown.Toggle>
+                              {menu}
+                            </Dropdown>
+                          </td>
+                        </tr>
+                        <br />
+                      </>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            ) : null}
           </div>
         </Col>
       </Row>
+
+      <Modal
+        show={details}
+        onHide={() => setDetails(false)}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        backdrop="static"
+        dialogClassName="details-modal border-0"
+      >
+        <Card className="details_modal_card">
+          <Card.Body className="p-4">
+            <div className="text-center">
+              <b className="fs-5">DETAILS</b>
+            </div>
+            <hr className="my-3" />
+
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Company Name</span>
+              </Col>
+              <Col xs={6}>
+                <b>Business Name Plc</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Company Address</span>
+              </Col>
+              <Col xs={6}>
+                <b>28, ayeni street, Lagos</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Product</span>
+              </Col>
+              <Col xs={6}>
+                <b>Sage Business Cloud</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Provider</span>
+              </Col>
+              <Col xs={6}>
+                <b>Sage</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Date</span>
+              </Col>
+              <Col xs={6}>
+                <b>15-08-2022</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Status</span>
+              </Col>
+              <Col xs={6}>
+                <span className="text-success">Success</span>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Total Value</span>
+              </Col>
+              <Col xs={6}>
+                <b>$200</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Naira Rate</span>
+              </Col>
+              <Col xs={6}>
+                <b>#600</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Amount Paid</span>
+              </Col>
+              <Col xs={6}>
+                <b>#120,000</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Transaction No</span>
+              </Col>
+              <Col xs={6}>
+                <b>PM001</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Reference No</span>
+              </Col>
+              <Col xs={6}>
+                <b>3344224354527687</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Invoice No</span>
+              </Col>
+              <Col xs={6}>
+                <b>-</b>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs={6}>
+                <span className="text-muted">Reason</span>
+              </Col>
+              <Col xs={6}>
+                <b>Software license</b>
+              </Col>
+            </Row>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={() => setDetails(false)}
+              >
+                Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
     </Container>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Col,
@@ -11,6 +11,7 @@ import {
   Card,
 } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
+import { getOrders } from "../../services/order";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -21,6 +22,18 @@ export const Transactions: React.FC<Props> = () => {
   const [receiptModal, setReceiptModal] = useState(false);
   const [tempKeyModal, setTempKeyModal] = useState(false);
   const [licenseKeyModal, setLicenseKeyModal] = useState(false);
+  const [orders, setOrders] = useState<any>([]);
+
+  useEffect(() => {
+    getOrders()
+      .then((res) => {
+        setOrders(res);
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   type CustomToggleProps = {
     children: React.ReactNode;
@@ -167,6 +180,18 @@ export const Transactions: React.FC<Props> = () => {
         </Dropdown>
       </Dropdown.Item>
     </Dropdown.Menu>
+  );
+
+  const licensed = (
+    <div className="body-bg text-theme py-2 px-3 status_border_radius w-fit-content">
+      Licensed
+    </div>
+  );
+
+  const tempKey = (
+    <div className="grey-bg text-dark py-2 px-3 status_border_radius w-fit-content">
+      Temp Key
+    </div>
   );
 
   return (
@@ -392,61 +417,73 @@ export const Transactions: React.FC<Props> = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="transaction_row">
-                  <td>PM001</td>
-                  <td>Business name plc</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>
-                    <div className="body-bg text-theme py-2 px-3 status_border_radius w-fit-content">
-                      Licensed
-                    </div>
-                  </td>
-                  <td>$200</td>
-                  <td>#600</td>
-                  <td>#120,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-                <br />
-                <tr className="transaction_row">
-                  <td>PM002</td>
-                  <td>Software business</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>
-                    <div className="grey-bg text-dark py-2 px-3 status_border_radius w-fit-content">
-                      Temp Key
-                    </div>
-                  </td>
-                  <td>E180</td>
-                  <td>#710</td>
-                  <td>#127,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
+                {orders.length > 0
+                  ? orders.map((order: any, index: any) => {
+                      let status;
+                      switch (order.status[order.status.length - 1]) {
+                        case "new_order":
+                          status = "New Order";
+                          break;
+                        case "payment_successful":
+                          status = "Payment Successful";
+                          break;
+                        case "payment_failed":
+                          status = "Payment Failed";
+                          break;
+                        case "awaiting_key":
+                          status = "Awaiting Key";
+                          break;
+                        case "temp_key":
+                          status = tempKey;
+                          break;
+                        case "licensed":
+                          status = licensed;
+                          break;
+
+                        default:
+                          status = "Unknown status";
+                          break;
+                      }
+
+                      const d = new Date(order.created_at);
+                      const date = d.toLocaleString("en-US", {
+                        day: "numeric",
+                        year: "numeric",
+                        month: "short",
+                      });
+
+                      return (
+                        <>
+                          <tr className="transaction_row" key={index}>
+                            <td>PM00{index + 1}</td>
+                            <td>{order.company_name}</td>
+                            <td>{order.provider.name}</td>
+                            <td>{order.product.name}</td>
+                            <td>{date}</td>
+                            <td>{status}</td>
+                            <td>$200</td>
+                            <td>#600</td>
+                            <td>
+                              {order.amount ? "#" + order.amount / 100 : "-"}
+                            </td>
+                            <td>
+                              <Dropdown>
+                                <Dropdown.Toggle
+                                  as={CustomToggle}
+                                  id="dropdown-custom-components"
+                                  split
+                                >
+                                  ...
+                                </Dropdown.Toggle>
+                                {menu}
+                              </Dropdown>
+                            </td>
+                          </tr>
+                          <br />
+                        </>
+                      );
+                    })
+                  : null}
               </tbody>
             </Table>
           </div>

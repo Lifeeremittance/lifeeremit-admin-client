@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Col, Row, Dropdown, Table } from "react-bootstrap";
 import { NavLink, Link } from "react-router-dom";
+import { getUsers } from "../../services/user";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
 };
 
 export const Customers: React.FC<Props> = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    getUsers()
+      .then((res) => {
+        setUsers(res);
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   type CustomToggleProps = {
     children: React.ReactNode;
     onClick: (event: any) => {};
@@ -25,14 +39,6 @@ export const Customers: React.FC<Props> = () => {
         {props.children}
       </b>
     )
-  );
-
-  const menu = (
-    <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
-      <Dropdown.Item eventKey="1">
-        <Link to="/customers/1" className="text-dark no-underline">View Details</Link>
-      </Dropdown.Item>
-    </Dropdown.Menu>
   );
 
   return (
@@ -187,47 +193,42 @@ export const Customers: React.FC<Props> = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="transaction_row">
-                  <td>1</td>
-                  <td>Peter Tinubu</td>
-                  <td>Business name plc</td>
-                  <td>petertinubu@gmail.com</td>
-                  <td>08012345678</td>
-                  <td>Ikoyi, Lagos</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-                <br />
-                <tr className="transaction_row">
-                  <td>2</td>
-                  <td>Peter Tinubu</td>
-                  <td>Business name plc</td>
-                  <td>petertinubu@gmail.com</td>
-                  <td>08012345678</td>
-                  <td>Ikoyi, Lagos</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
+                {users.length > 0
+                  ? users.map((user: any, index: any) => (
+                      <>
+                        <tr className="transaction_row" key={index}>
+                          <td>{index + 1}</td>
+                          <td>{user.fullName}</td>
+                          <td>{user.companyName}</td>
+                          <td>{user.email_address}</td>
+                          <td>{user.phone_number}</td>
+                          <td>{user.address}</td>
+                          <td>
+                            <Dropdown>
+                              <Dropdown.Toggle
+                                as={CustomToggle}
+                                id="dropdown-custom-components"
+                                split
+                              >
+                                ...
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
+                                <Dropdown.Item eventKey="1">
+                                  <Link
+                                    to={`/customers/${user._id}`}
+                                    className="text-dark no-underline"
+                                  >
+                                    View Details
+                                  </Link>
+                                </Dropdown.Item>
+                              </Dropdown.Menu>
+                            </Dropdown>
+                          </td>
+                        </tr>
+                        <br />
+                      </>
+                    ))
+                  : null}
               </tbody>
             </Table>
           </div>
