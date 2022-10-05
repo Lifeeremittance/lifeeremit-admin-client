@@ -60,3 +60,12 @@ export const createOrder = async (
   );
   return response;
 };
+
+export const updateOrder = async (id: any, updateDto: any) => {
+  const response = await Api.patch(`/orders/${id}`, updateDto, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response;
+};

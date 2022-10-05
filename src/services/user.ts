@@ -42,7 +42,7 @@ export const createUser = async (
     {
       email_address,
       phone_number,
-      roles: ["user"],
+      roles: ["user", "admin"],
       companyName,
       address,
     },

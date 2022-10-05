@@ -467,3 +467,7 @@ td {
 .currency_card img {
   filter: brightness(60%);
 }
+
+.border-radius-0 {
+  border-radius: 0px !important;
+}
