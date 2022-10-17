@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Col,
@@ -10,7 +10,10 @@ import {
   Modal,
   Card,
 } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
+import { toast } from "react-toastify";
+import Header from "../../components/header";
+import Sidebar from "../../components/sidebar";
+import { getOrders, updateOrder } from "../../services/order";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -21,6 +24,26 @@ export const Transactions: React.FC<Props> = () => {
   const [receiptModal, setReceiptModal] = useState(false);
   const [tempKeyModal, setTempKeyModal] = useState(false);
   const [licenseKeyModal, setLicenseKeyModal] = useState(false);
+  const [invoice, setInvoice] = useState(false);
+
+  const [tempKey, setTempKey] = useState("");
+  const [licenseKey, setLicenseKey] = useState("");
+  const [tempKeyExp, setTempKeyExp] = useState("");
+  const [licenseKeyExp, setLicenseKeyExp] = useState("");
+
+  const [orders, setOrders] = useState<any>([]);
+  const [selectedOrder, setSelectedOrder] = useState<any>({});
+
+  useEffect(() => {
+    getOrders()
+      .then((res) => {
+        setOrders(res);
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   type CustomToggleProps = {
     children: React.ReactNode;
@@ -57,37 +80,6 @@ export const Transactions: React.FC<Props> = () => {
     )
   );
 
-  const menu = (
-    <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
-      <Dropdown.Item
-        eventKey="1"
-        className="text-success"
-        onClick={() => setReceiptModal(true)}
-      >
-        View Receipt
-      </Dropdown.Item>
-      <Dropdown.Item eventKey="2">Contact OEM</Dropdown.Item>
-      <Dropdown.Item eventKey="3" onClick={() => setDetailsModal(true)}>
-        View Details
-      </Dropdown.Item>
-      <Dropdown.Item eventKey="4">View Invoice</Dropdown.Item>
-      <Dropdown.Item
-        eventKey="5"
-        className="text-theme"
-        onClick={() => setTempKeyModal(true)}
-      >
-        Temp Key
-      </Dropdown.Item>
-      <Dropdown.Item
-        eventKey="6"
-        className="text-theme"
-        onClick={() => setLicenseKeyModal(true)}
-      >
-        License Key
-      </Dropdown.Item>
-    </Dropdown.Menu>
-  );
-
   const statusMenu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu right-dropdown">
       <Dropdown.Item eventKey="1">Paid</Dropdown.Item>
@@ -116,7 +108,7 @@ export const Transactions: React.FC<Props> = () => {
     </Dropdown.Menu>
   );
 
-  const menu2 = (
+  const menu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
       <Dropdown.Item
         eventKey="1"
@@ -169,143 +161,52 @@ export const Transactions: React.FC<Props> = () => {
     </Dropdown.Menu>
   );
 
+  const licensed = <div className="text-theme">Licensed</div>;
+
+  const temp = <div className="">Temp Key</div>;
+
+  const new_order = <div className="text-warning">New Order</div>;
+
+  const payment_successful = (
+    <div className="text-success">Payment Successful</div>
+  );
+  const handleTempSumbit = async (e: any) => {
+    e.preventDefault();
+    const response = await updateOrder(selectedOrder._id, {
+      temp_key: tempKey,
+      temp_key_exp_date: tempKeyExp,
+      status: "temp_key",
+    });
+    console.log(response);
+    if (response.status === 200) {
+      toast.success(response.data.data);
+      setTempKeyModal(false);
+      setTempKey("");
+      setTempKeyExp("");
+    } else toast.error(response);
+  };
+
+  const handleLicenseSubmit = async (e: any) => {
+    e.preventDefault();
+    const response = await updateOrder(selectedOrder._id, {
+      license_key: licenseKey,
+      license_key_exp_date: licenseKeyExp,
+      status: "licensed",
+    });
+    if (response.status === 200) {
+      toast.success(response.data.data);
+      setLicenseKeyModal(false);
+      setLicenseKey("");
+      setLicenseKeyExp("");
+    } else toast.error(response);
+  };
+
   return (
     <Container fluid className="vw-100 vh-100 body-bg">
       <Row className="p-0">
-        <Col md={4} lg={3} className="p-0 vh-100">
-          <div className="sidebar_menu bg-white text-center border shadow-sm d-flex justify-content-between flex-column">
-            <div>
-              <h4 className="fw-bold pt-5">Paymit</h4>
-
-              <ul className="nav flex-column pt-4 px-3 justify-content-between side-specific-height text-left">
-                <li className="nav-item mb-4">
-                  <NavLink
-                    to="/overview"
-                    className="nav-link text-grey"
-                    aria-current="page"
-                  >
-                    <i
-                      className={`fa fa-th-large icli fs-5 align-middle me-4`}
-                    ></i>
-                    <span className="align-middle fs-6">Overview</span>
-                  </NavLink>
-                </li>
-                <li className="nav-item mb-4">
-                  <NavLink
-                    to="/transactions"
-                    className="nav-link text-grey"
-                    aria-current="page"
-                  >
-                    <i
-                      className={`fa fa-bar-chart icli fs-5 align-middle me-4`}
-                    ></i>
-                    <span className="align-middle fs-6">Transactions</span>
-                  </NavLink>
-                </li>
-                <li className="nav-item mb-4">
-                  <NavLink
-                    to="/customers"
-                    className="nav-link text-grey"
-                    aria-current="page"
-                  >
-                    <i
-                      className={`fa fa-users icli fs-5 align-middle me-4`}
-                    ></i>
-                    <span className="align-middle fs-6">Customers</span>
-                  </NavLink>
-                </li>
-                <li className="nav-item mb-4">
-                  <NavLink
-                    to="/products"
-                    className="nav-link text-grey"
-                    aria-current="page"
-                  >
-                    <i
-                      className={`fa fa-briefcase icli fs-5 align-middle me-4`}
-                    ></i>
-                    <span className="align-middle fs-6">Products</span>
-                  </NavLink>
-                </li>
-                <li className="nav-item mb-4">
-                  <NavLink
-                    to="/currencies"
-                    className="nav-link text-grey"
-                    aria-current="page"
-                  >
-                    <i
-                      className={`fa fa-money icli fs-5 align-middle me-4`}
-                    ></i>
-                    <span className="align-middle fs-6">Currencies</span>
-                  </NavLink>
-                </li>
-              </ul>
-            </div>
-
-            <div className="p-3 border-top border-bottom mb-5">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M21.207 11.2935L18.207 8.29346C18.1144 8.19966 18.0041 8.1251 17.8825 8.07407C17.761 8.02305 17.6305 7.99657 17.4987 7.99616C17.3668 7.99575 17.2362 8.02141 17.1143 8.07167C16.9925 8.12194 16.8817 8.19581 16.7885 8.28903C16.6953 8.38226 16.6214 8.493 16.5712 8.61488C16.5209 8.73676 16.4952 8.86738 16.4957 8.99921C16.4961 9.13105 16.5226 9.2615 16.5736 9.38306C16.6246 9.50462 16.6992 9.61489 16.793 9.70752L18.086 11.0005H12.5C12.2348 11.0005 11.9804 11.1059 11.7929 11.2934C11.6054 11.481 11.5 11.7353 11.5 12.0005C11.5 12.2657 11.6054 12.5201 11.7929 12.7076C11.9804 12.8952 12.2348 13.0005 12.5 13.0005H18.0859L16.7929 14.2935C16.6991 14.3862 16.6246 14.4964 16.5736 14.618C16.5225 14.7396 16.496 14.87 16.4956 15.0018C16.4952 15.1337 16.5209 15.2643 16.5711 15.3862C16.6214 15.5081 16.6953 15.6188 16.7885 15.712C16.8817 15.8052 16.9925 15.8791 17.1144 15.9294C17.2362 15.9796 17.3669 16.0053 17.4987 16.0049C17.6305 16.0044 17.761 15.978 17.8825 15.9269C18.0041 15.8759 18.1144 15.8013 18.207 15.7075L21.207 12.7075C21.2999 12.6147 21.3736 12.5045 21.4238 12.3832C21.4741 12.2618 21.5 12.1318 21.5 12.0005C21.5 11.8692 21.4741 11.7391 21.4238 11.6178C21.3736 11.4965 21.2999 11.3863 21.207 11.2935Z"
-                  fill="#6563FF"
-                />
-                <path
-                  d="M12.5 13.0005C12.2348 13.0005 11.9804 12.8951 11.7929 12.7076C11.6054 12.5201 11.5 12.2657 11.5 12.0005C11.5 11.7353 11.6054 11.4809 11.7929 11.2934C11.9804 11.1058 12.2348 11.0005 12.5 11.0005H16.5V5C16.4991 4.20462 16.1828 3.44206 15.6204 2.87964C15.0579 2.31722 14.2954 2.00087 13.5 2H5.5C4.70462 2.00087 3.94206 2.31722 3.37964 2.87964C2.81722 3.44206 2.50087 4.20462 2.5 5V19C2.50087 19.7954 2.81722 20.5579 3.37964 21.1204C3.94206 21.6828 4.70462 21.9991 5.5 22H13.5C14.2954 21.9991 15.0579 21.6828 15.6204 21.1204C16.1828 20.5579 16.4991 19.7954 16.5 19V13.0005H12.5Z"
-                  fill="#A2A1FF"
-                />
-              </svg>
-              <span className="ms-3">Logout</span>
-            </div>
-          </div>
-        </Col>
+        <Sidebar />
         <Col md={8} lg={9} className="p-0 bg-white">
-          <header className="d-flex align-items-center justify-content-between vh-10 body-bg p-3 border-bottom">
-            <div></div>
-            <span className="fs-6 text-theme">Transactions</span>
-
-            <div className="d-flex align-items-center">
-              <i className="fa fa-bell fs-3 me-3" aria-hidden="true"></i>
-              <Dropdown>
-                <Dropdown.Toggle
-                  as={CustomToggle}
-                  id="dropdown-custom-components"
-                  split
-                >
-                  <div className="d-flex align-items-center">
-                    <div className="header_profile_img me-2 d-flex align-items-center justify-content-center text-white fs-4">
-                      A
-                    </div>
-                    <i className="fa fa-caret-down" aria-hidden="true"></i>
-                  </div>
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  <Dropdown.Item eventKey="1">
-                    <div className="d-flex align-items-center">
-                      <i
-                        className="fw-bold fa fa-user me-2"
-                        aria-hidden="true"
-                      ></i>
-                      Edit Profile
-                    </div>
-                  </Dropdown.Item>
-                  <Dropdown.Item eventKey="2">
-                    <div className="d-flex align-items-center">
-                      <i
-                        className="fw-bold fa fa-sign-out me-2"
-                        aria-hidden="true"
-                      ></i>
-                      <span className="text-red">Logout</span>
-                    </div>
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </header>
+          <Header title="Transactions" />
 
           <div className="body-bg vh-90 py-5 px-3 y-scroll">
             <InputGroup className="search_group mb-4">
@@ -371,12 +272,12 @@ export const Transactions: React.FC<Props> = () => {
                       />
                     </svg>
                   </Dropdown.Toggle>
-                  {menu2}
+                  {menu}
                 </Dropdown>
               </InputGroup.Text>
             </InputGroup>
 
-            <Table className="text-smaller">
+            <Table className="text-smaller text-center">
               <thead>
                 <tr className="text-muted">
                   <th>#</th>
@@ -385,467 +286,626 @@ export const Transactions: React.FC<Props> = () => {
                   <th>PRODUCT</th>
                   <th>DATE</th>
                   <th>STATUS</th>
-                  <th>Tot. Value</th>
+                  <th>Product Value</th>
                   <th># RATE</th>
                   <th>AMOUNT PAID</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="transaction_row">
-                  <td>PM001</td>
-                  <td>Business name plc</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>
-                    <div className="body-bg text-theme py-2 px-3 status_border_radius w-fit-content">
-                      Licensed
-                    </div>
-                  </td>
-                  <td>$200</td>
-                  <td>#600</td>
-                  <td>#120,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
-                <br />
-                <tr className="transaction_row">
-                  <td>PM002</td>
-                  <td>Software business</td>
-                  <td>Sage</td>
-                  <td>Sage Business Cloud</td>
-                  <td>15-08-2022</td>
-                  <td>
-                    <div className="grey-bg text-dark py-2 px-3 status_border_radius w-fit-content">
-                      Temp Key
-                    </div>
-                  </td>
-                  <td>E180</td>
-                  <td>#710</td>
-                  <td>#127,000</td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        as={CustomToggle}
-                        id="dropdown-custom-components"
-                        split
-                      >
-                        ...
-                      </Dropdown.Toggle>
-                      {menu}
-                    </Dropdown>
-                  </td>
-                </tr>
+                {orders.length > 0
+                  ? orders.map((order: any, index: any) => {
+                      let status;
+                      switch (order.status[order.status.length - 1]) {
+                        case "new_order":
+                          status = new_order;
+                          break;
+                        case "payment_successful":
+                          status = payment_successful;
+                          break;
+                        case "payment_failed":
+                          status = "Payment Failed";
+                          break;
+                        case "awaiting_key":
+                          status = "Awaiting Key";
+                          break;
+                        case "temp_key":
+                          status = temp;
+                          break;
+                        case "licensed":
+                          status = licensed;
+                          break;
+
+                        default:
+                          status = "Unknown status";
+                          break;
+                      }
+
+                      const d = new Date(order.created_at);
+                      const date = d.toLocaleString("en-US", {
+                        day: "numeric",
+                        year: "numeric",
+                        month: "short",
+                      });
+
+                      return (
+                        <>
+                          <tr className="transaction_row" key={index}>
+                            <td>{index + 1}</td>
+                            <td>{order.company_name}</td>
+                            <td>{order.provider.name}</td>
+                            <td>{order.product.name}</td>
+                            <td>{date}</td>
+                            <td>{status}</td>
+                            <td>
+                              {order.product_value
+                                ? order.product_value / 100 + " NGN"
+                                : "-"}
+                            </td>
+                            <td>NGN 600</td>
+                            <td>
+                              {order.amount ? order.amount / 100 + " NGN" : "-"}
+                            </td>
+                            <td>
+                              <Dropdown>
+                                <Dropdown.Toggle
+                                  as={CustomToggle}
+                                  id="dropdown-custom-components"
+                                  split
+                                >
+                                  ...
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
+                                  <Dropdown.Item
+                                    eventKey="1"
+                                    className="text-success"
+                                    onClick={() => {
+                                      setReceiptModal(true);
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    View Receipt
+                                  </Dropdown.Item>
+                                  <Dropdown.Item eventKey="2">
+                                    Contact OEM
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="3"
+                                    onClick={() => {
+                                      setDetailsModal(true);
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    View Details
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="4"
+                                    onClick={() => {
+                                      setInvoice(true);
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    View Invoice
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="5"
+                                    className="text-theme"
+                                    onClick={() => {
+                                      setTempKeyModal(true);
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    Temp Key
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="6"
+                                    className="text-theme"
+                                    onClick={() => {
+                                      setLicenseKeyModal(true);
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    License Key
+                                  </Dropdown.Item>
+                                </Dropdown.Menu>
+                              </Dropdown>
+                            </td>
+                          </tr>
+                          <br />
+                        </>
+                      );
+                    })
+                  : null}
               </tbody>
             </Table>
           </div>
         </Col>
       </Row>
 
-      <Modal
-        show={detailsModal}
-        onHide={() => setDetailsModal(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-        backdrop="static"
-        dialogClassName="details-modal border-0"
-      >
-        <Card className="details_modal_card p-3">
-          <Card.Body>
-            <div className="text-center">
-              <b className="fs-6">DETAILS</b>
-            </div>
-            <hr className="mt-2 mb-3" />
-
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Company Name</span>
-              </Col>
-              <Col xs={6}>
-                <b>Business Name Plc</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Company Address</span>
-              </Col>
-              <Col xs={6}>
-                <b>28, ayeni street, Lagos</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Product</span>
-              </Col>
-              <Col xs={6}>
-                <b>Sage Business Cloud</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Provider</span>
-              </Col>
-              <Col xs={6}>
-                <b>Sage</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Date</span>
-              </Col>
-              <Col xs={6}>
-                <b>15-08-2022</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Status</span>
-              </Col>
-              <Col xs={6}>
-                <span className="text-success">Success</span>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Total Value</span>
-              </Col>
-              <Col xs={6}>
-                <b>$200</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Naira Rate</span>
-              </Col>
-              <Col xs={6}>
-                <b>#600</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Amount Paid</span>
-              </Col>
-              <Col xs={6}>
-                <b>#120,000</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Transaction No</span>
-              </Col>
-              <Col xs={6}>
-                <b>PM001</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Reference No</span>
-              </Col>
-              <Col xs={6}>
-                <b>3344224354527687</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Invoice No</span>
-              </Col>
-              <Col xs={6}>
-                <b>-</b>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col xs={6}>
-                <span className="text-muted">Reason</span>
-              </Col>
-              <Col xs={6}>
-                <b>Software license</b>
-              </Col>
-            </Row>
-
-            <div className="text-center mt-5">
-              <button
-                className="btn btn_theme btn_theme2 w-50"
-                onClick={() => setDetailsModal(false)}
-              >
-                Done
-              </button>
-            </div>
-          </Card.Body>
-        </Card>
-      </Modal>
-
-      <Modal
-        show={receiptModal}
-        onHide={() => setReceiptModal(false)}
-        size="sm"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-        dialogClassName="receipt-modal border-0"
-      >
-        <Card className="details_modal_card border-0">
-          <div
-            className="text-center bg-theme text-white p-3"
-            style={{ borderRadius: "30px 30px 0px 0px" }}
+      {Object.keys(selectedOrder).length !== 0 && (
+        <>
+          <Modal
+            show={detailsModal}
+            onHide={() => setDetailsModal(false)}
+            size="sm"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            backdrop="static"
+            dialogClassName="details-modal border-0"
           >
-            <b className="fs-5">Paymit</b>
-          </div>
-          <Card.Body className="p-4">
-            <div className="d-flex align-items-center justify-content-between">
-              <b className="fs-5">Receipt</b>
-              <svg
-                width="30"
-                height="30"
-                viewBox="0 0 30 30"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M26.25 16C25.9185 16 25.6005 16.1317 25.3661 16.3661C25.1317 16.6005 25 16.9185 25 17.25V22.25C25 22.5815 24.8683 22.8995 24.6339 23.1339C24.3995 23.3683 24.0815 23.5 23.75 23.5H6.25C5.91848 23.5 5.60054 23.3683 5.36612 23.1339C5.1317 22.8995 5 22.5815 5 22.25V17.25C5 16.9185 4.8683 16.6005 4.63388 16.3661C4.39946 16.1317 4.08152 16 3.75 16C3.41848 16 3.10054 16.1317 2.86612 16.3661C2.6317 16.6005 2.5 16.9185 2.5 17.25V22.25C2.5 23.2446 2.89509 24.1984 3.59835 24.9017C4.30161 25.6049 5.25544 26 6.25 26H23.75C24.7446 26 25.6984 25.6049 26.4017 24.9017C27.1049 24.1984 27.5 23.2446 27.5 22.25V17.25C27.5 16.9185 27.3683 16.6005 27.1339 16.3661C26.8995 16.1317 26.5815 16 26.25 16ZM14.1125 18.1375C14.2314 18.2513 14.3716 18.3405 14.525 18.4C14.6746 18.4661 14.8364 18.5003 15 18.5003C15.1636 18.5003 15.3254 18.4661 15.475 18.4C15.6284 18.3405 15.7686 18.2513 15.8875 18.1375L20.8875 13.1375C21.1229 12.9021 21.2551 12.5829 21.2551 12.25C21.2551 11.9171 21.1229 11.5979 20.8875 11.3625C20.6521 11.1271 20.3329 10.9949 20 10.9949C19.6671 10.9949 19.3479 11.1271 19.1125 11.3625L16.25 14.2375V2.25C16.25 1.91848 16.1183 1.60054 15.8839 1.36612C15.6495 1.1317 15.3315 1 15 1C14.6685 1 14.3505 1.1317 14.1161 1.36612C13.8817 1.60054 13.75 1.91848 13.75 2.25V14.2375L10.8875 11.3625C10.771 11.246 10.6326 11.1535 10.4803 11.0904C10.328 11.0273 10.1648 10.9949 10 10.9949C9.83518 10.9949 9.67197 11.0273 9.51969 11.0904C9.36741 11.1535 9.22905 11.246 9.1125 11.3625C8.99595 11.479 8.9035 11.6174 8.84043 11.7697C8.77735 11.922 8.74489 12.0852 8.74489 12.25C8.74489 12.4148 8.77735 12.578 8.84043 12.7303C8.9035 12.8826 8.99595 13.021 9.1125 13.1375L14.1125 18.1375Z"
-                  fill="black"
-                />
-              </svg>
-            </div>
+            <Card className="details_modal_card">
+              <Card.Body className="p-4">
+                <div className="text-center">
+                  <b className="fs-5">DETAILS</b>
+                </div>
+                <hr className="my-3" />
 
-            <div className="dotted my-3"></div>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Company Name</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.company_name}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Company Address</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.company_address}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Product</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.product.name}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Provider</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.provider.name}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Date</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {new Date(selectedOrder.created_at).toLocaleString(
+                        "en-US",
+                        {
+                          day: "numeric",
+                          year: "numeric",
+                          month: "short",
+                        }
+                      )}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Status</span>
+                  </Col>
+                  <Col xs={6}>
+                    <span
+                      className={
+                        selectedOrder.status.includes("payment_successful")
+                          ? `text-success`
+                          : `text-theme`
+                      }
+                    >
+                      {selectedOrder.status.includes("payment_successful")
+                        ? "Success"
+                        : "Pending"}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Product Value</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {selectedOrder.product_value
+                        ? selectedOrder.product_value / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Naira Rate</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>NGN 600</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Total Amount Paid</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {selectedOrder.amount
+                        ? selectedOrder.amount / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Transaction No</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {selectedOrder.order_number
+                        ? selectedOrder.order_number
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Reference No</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.reference_number || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Invoice No</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.invoice_number || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Reason</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.reason || "-"}</b>
+                  </Col>
+                </Row>
 
-            <b className="text-small">15 Aug, 2022 - 15:30</b>
+                <div className="text-center mt-4">
+                  <button
+                    className="btn btn_theme btn_theme2 w-50"
+                    onClick={() => setDetailsModal(false)}
+                  >
+                    Done
+                  </button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
 
-            <Row className="mt-3">
-              <Col xs={5}>
-                <span className="text-muted">Product</span>
-              </Col>
-              <Col xs={7}>
-                <b>Sage Business Cloud</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Name</span>
-              </Col>
-              <Col xs={7}>
-                <b>Peter Tinubu</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Temp Key</span>
-              </Col>
-              <Col xs={7}>
-                <b>KWYZ125VSY732NA</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">License Key</span>
-              </Col>
-              <Col xs={7}>
-                <b>KWYZ125VSY732NA</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Transaction No</span>
-              </Col>
-              <Col xs={7}>
-                <b>PM0001</b>
-              </Col>
-            </Row>
-
-            <div className="dotted my-3"></div>
-
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Total Amount</span>
-              </Col>
-              <Col xs={7}>
-                <b>127,000 NGN</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Product Value</span>
-              </Col>
-              <Col xs={7}>
-                <b>200 USD</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Exchange Rate</span>
-              </Col>
-              <Col xs={7}>
-                <b>1 USD = 600NGN</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Service Charge</span>
-              </Col>
-              <Col xs={7}>
-                <b>$10</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Interest Change</span>
-              </Col>
-              <Col xs={7}>
-                <b>%1 = 2 USD</b>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col xs={5}>
-                <span className="text-muted">Reason</span>
-              </Col>
-              <Col xs={7}>
-                <b>Software Purchase</b>
-              </Col>
-            </Row>
-
-            <div className="text-center mt-4">
-              <svg
-                width="145"
-                height="47"
-                viewBox="0 0 145 47"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5.09766 47H0V0H5.09766V47ZM10.1953 46.9666H7.60603V0H10.1953V46.9666ZM17.8013 46.9666H15.293V0H17.8013V46.9666ZM30.505 46.9666H27.9967V0H30.505V46.9666ZM43.2087 46.9666H38.192V0H43.2087V46.9666ZM53.404 46.9666H50.8956V0H53.404V46.9666ZM58.5017 46.9666H55.9933V0H58.5017V46.9666ZM63.5993 46.9666H61.091V0H63.5993V46.9666ZM76.303 46.9666H71.2054V0H76.303V46.9666ZM89.0067 46.9666H83.909V0H89.0067V46.9666ZM99.202 46.9666H94.1043V0H99.202V46.9666ZM109.397 46.9666H104.3V0H109.397V46.9666ZM117.003 46.9666H111.906V0H117.003V46.9666ZM132.296 46.9666H124.69V0H132.296V46.9666ZM137.394 46.9666H134.805V0H137.394V46.9666ZM145 47H139.902V0H145V47Z"
-                  fill="black"
-                />
-              </svg>
-            </div>
-          </Card.Body>
-        </Card>
-      </Modal>
-
-      <Modal
-        show={tempKeyModal}
-        onHide={() => setTempKeyModal(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-        backdrop="static"
-        dialogClassName="details-modal border-0"
-      >
-        <Card className="details_modal_card p-3">
-          <Card.Body>
-            <div className="text-center">
-              <b className="fs-6">TEMP KEY</b>
-            </div>
-            <hr className="mt-2 mb-3" />
-
-            <Form>
-              <Form.Group controlId="formForPayment">
-                <Form.Label>
-                  <b>TEMPORARY KEY</b>
-                </Form.Label>
-                <Form.Control type="text" className="form_inputs mb-3 w-100" />
-                <Form.Label>
-                  <b>EXPIRY DATE</b>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  className="form_inputs mb-3 w-100"
-                  placeholder="DD/MM/YYYY"
-                />
-              </Form.Group>
-            </Form>
-
-            <div className="text-right mt-5">
-              <button
-                className="btn btn_theme btn_theme2 w-50"
-                onClick={() => setTempKeyModal(false)}
-              >
-                Done
-              </button>
-            </div>
-          </Card.Body>
-        </Card>
-      </Modal>
-
-      <Modal
-        show={licenseKeyModal}
-        onHide={() => setLicenseKeyModal(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-        backdrop="static"
-        dialogClassName="details-modal border-0"
-      >
-        <Card className="details_modal_card p-3">
-          <Card.Body>
-            <div className="text-center">
-              <b className="fs-6">LICENSE KEY</b>
-            </div>
-            <hr className="mt-2 mb-3" />
-            <Form>
-              <Form.Group controlId="formForPayment">
-                <Form.Label>
-                  <b>LICENSE KEY</b>
-                </Form.Label>
-                <Form.Control type="text" className="form_inputs mb-3 w-100" />
-                <Form.Label>
-                  <b>EXPIRY DATE</b>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  className="form_inputs mb-3 w-100"
-                  placeholder="DD/MM/YYYY"
-                />
-              </Form.Group>
-            </Form>
-
-            <div className="d-flex align-items-center mt-4">
+          <Modal
+            show={receiptModal}
+            onHide={() => setReceiptModal(false)}
+            size="sm"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card border-0">
               <div
-                className="d-grid me-3 cursor-pointer"
-                style={{
-                  width: 40,
-                  height: 40,
-                  background: "#263238",
-                  borderRadius: "10px",
-                  placeContent: "center",
-                }}
+                className="text-center bg-theme text-white p-3"
+                style={{ borderRadius: "30px 30px 0px 0px" }}
               >
-                <svg
-                  width="16"
-                  height="19"
-                  viewBox="0 0 16 19"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M14.0759 9.58066L8.44551 15.211C6.90171 16.7548 4.44979 16.7548 2.9968 15.211C1.45299 13.6672 1.45299 11.2153 2.9968 9.76229L10.2618 2.49733C11.1699 1.68002 12.5321 1.68002 13.4402 2.49733C14.3483 3.40545 14.3483 4.85844 13.4402 5.67575L7.17415 11.9418C6.90171 12.2142 6.44765 12.2142 6.17521 11.9418C5.90278 11.6693 5.90278 11.2153 6.17521 10.9428L10.8066 6.31143C11.1699 5.94818 11.1699 5.40331 10.8066 5.04006C10.4434 4.67682 9.8985 4.67682 9.53526 5.04006L4.90385 9.76229C3.90491 10.7612 3.90491 12.305 4.90385 13.304C5.90278 14.2121 7.44658 14.2121 8.44551 13.304L14.7115 7.03793C16.3462 5.40331 16.3462 2.86058 14.7115 1.22596C13.0769 -0.408654 10.5342 -0.408654 8.89957 1.22596L1.63462 8.49092C0.544872 9.58066 0 11.0337 0 12.4866C0 15.6651 2.54273 18.117 5.72115 18.117C7.26496 18.117 8.62714 17.4813 9.71688 16.4824L15.3472 10.852C15.7105 10.4888 15.7105 9.94391 15.3472 9.58066C14.984 9.21741 14.4391 9.21741 14.0759 9.58066Z"
-                    fill="white"
-                  />
-                </svg>
+                <b className="fs-5">Paymit</b>
               </div>
-              Attach Invoice
-            </div>
-            <div className="text-right mt-5">
-              <button
-                className="btn btn_theme btn_theme2 w-50"
-                onClick={() => setLicenseKeyModal(false)}
-              >
-                Done
-              </button>
-            </div>
-          </Card.Body>
-        </Card>
-      </Modal>
+              <Card.Body className="p-4">
+                <div className="d-flex align-items-center justify-content-between">
+                  <b>Receipt</b>
+                  <svg
+                    width="30"
+                    height="30"
+                    viewBox="0 0 30 30"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M26.25 16C25.9185 16 25.6005 16.1317 25.3661 16.3661C25.1317 16.6005 25 16.9185 25 17.25V22.25C25 22.5815 24.8683 22.8995 24.6339 23.1339C24.3995 23.3683 24.0815 23.5 23.75 23.5H6.25C5.91848 23.5 5.60054 23.3683 5.36612 23.1339C5.1317 22.8995 5 22.5815 5 22.25V17.25C5 16.9185 4.8683 16.6005 4.63388 16.3661C4.39946 16.1317 4.08152 16 3.75 16C3.41848 16 3.10054 16.1317 2.86612 16.3661C2.6317 16.6005 2.5 16.9185 2.5 17.25V22.25C2.5 23.2446 2.89509 24.1984 3.59835 24.9017C4.30161 25.6049 5.25544 26 6.25 26H23.75C24.7446 26 25.6984 25.6049 26.4017 24.9017C27.1049 24.1984 27.5 23.2446 27.5 22.25V17.25C27.5 16.9185 27.3683 16.6005 27.1339 16.3661C26.8995 16.1317 26.5815 16 26.25 16ZM14.1125 18.1375C14.2314 18.2513 14.3716 18.3405 14.525 18.4C14.6746 18.4661 14.8364 18.5003 15 18.5003C15.1636 18.5003 15.3254 18.4661 15.475 18.4C15.6284 18.3405 15.7686 18.2513 15.8875 18.1375L20.8875 13.1375C21.1229 12.9021 21.2551 12.5829 21.2551 12.25C21.2551 11.9171 21.1229 11.5979 20.8875 11.3625C20.6521 11.1271 20.3329 10.9949 20 10.9949C19.6671 10.9949 19.3479 11.1271 19.1125 11.3625L16.25 14.2375V2.25C16.25 1.91848 16.1183 1.60054 15.8839 1.36612C15.6495 1.1317 15.3315 1 15 1C14.6685 1 14.3505 1.1317 14.1161 1.36612C13.8817 1.60054 13.75 1.91848 13.75 2.25V14.2375L10.8875 11.3625C10.771 11.246 10.6326 11.1535 10.4803 11.0904C10.328 11.0273 10.1648 10.9949 10 10.9949C9.83518 10.9949 9.67197 11.0273 9.51969 11.0904C9.36741 11.1535 9.22905 11.246 9.1125 11.3625C8.99595 11.479 8.9035 11.6174 8.84043 11.7697C8.77735 11.922 8.74489 12.0852 8.74489 12.25C8.74489 12.4148 8.77735 12.578 8.84043 12.7303C8.9035 12.8826 8.99595 13.021 9.1125 13.1375L14.1125 18.1375Z"
+                      fill="black"
+                    />
+                  </svg>
+                </div>
+
+                <div className="dotted my-3"></div>
+
+                <b className="text-small">
+                  {new Date(selectedOrder.created_at).toLocaleString("en-US", {
+                    day: "numeric",
+                    year: "numeric",
+                    month: "short",
+                  })}
+                </b>
+
+                <Row className="mt-3">
+                  <Col xs={5}>
+                    <span className="text-muted">Product</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.product.name}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Name</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.user.fullName || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Temp Key</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.temp_key || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">License Key</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.license_key || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Transaction No</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.order_number
+                        ? selectedOrder.order_number
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+
+                <div className="dotted my-3"></div>
+
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Total Amount</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.amount
+                        ? selectedOrder.amount / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Product Value</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.product_value
+                        ? selectedOrder.product_value / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Exchange Rate</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>1 USD = 600 NGN</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Service Charge</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>$10</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Interest Change</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>%1 = 2 USD</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Reason</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.reason || "-"}</b>
+                  </Col>
+                </Row>
+
+                <div className="text-center mt-4">
+                  <svg
+                    width="145"
+                    height="47"
+                    viewBox="0 0 145 47"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M5.09766 47H0V0H5.09766V47ZM10.1953 46.9666H7.60603V0H10.1953V46.9666ZM17.8013 46.9666H15.293V0H17.8013V46.9666ZM30.505 46.9666H27.9967V0H30.505V46.9666ZM43.2087 46.9666H38.192V0H43.2087V46.9666ZM53.404 46.9666H50.8956V0H53.404V46.9666ZM58.5017 46.9666H55.9933V0H58.5017V46.9666ZM63.5993 46.9666H61.091V0H63.5993V46.9666ZM76.303 46.9666H71.2054V0H76.303V46.9666ZM89.0067 46.9666H83.909V0H89.0067V46.9666ZM99.202 46.9666H94.1043V0H99.202V46.9666ZM109.397 46.9666H104.3V0H109.397V46.9666ZM117.003 46.9666H111.906V0H117.003V46.9666ZM132.296 46.9666H124.69V0H132.296V46.9666ZM137.394 46.9666H134.805V0H137.394V46.9666ZM145 47H139.902V0H145V47Z"
+                      fill="black"
+                    />
+                  </svg>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={tempKeyModal}
+            onHide={() => setTempKeyModal(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card p-3">
+              <Card.Body>
+                <div className="text-center">
+                  <b className="fs-6">TEMP KEY</b>
+                </div>
+                <hr className="mt-2 mb-3" />
+
+                <Form>
+                  <Form.Group controlId="formForPayment">
+                    <Form.Label>
+                      <b>TEMPORARY KEY</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      className="form_inputs mb-3 w-100"
+                      defaultValue={selectedOrder.temp_key || tempKey}
+                      onChange={(e) => setTempKey(e.target.value)}
+                    />
+                    <Form.Label>
+                      <b>EXPIRY DATE</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      className="form_inputs mb-3 w-100"
+                      placeholder="DD/MM/YYYY"
+                      defaultValue={
+                        selectedOrder.temp_key_exp_date || tempKeyExp
+                      }
+                      onChange={(e) => setTempKeyExp(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
+
+                <div className="text-right mt-5">
+                  <button
+                    className="btn btn_theme btn_theme2 w-50"
+                    onClick={handleTempSumbit}
+                  >
+                    Done
+                  </button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={licenseKeyModal}
+            onHide={() => setLicenseKeyModal(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card p-3">
+              <Card.Body>
+                <div className="text-center">
+                  <b className="fs-6">LICENSE KEY</b>
+                </div>
+                <hr className="mt-2 mb-3" />
+                <Form>
+                  <Form.Group controlId="formForPayment">
+                    <Form.Label>
+                      <b>LICENSE KEY</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      className="form_inputs mb-3 w-100"
+                      defaultValue={selectedOrder.license_key || licenseKey}
+                      onChange={(e) => setLicenseKey(e.target.value)}
+                    />
+                    <Form.Label>
+                      <b>EXPIRY DATE</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      className="form_inputs mb-3 w-100"
+                      placeholder="DD/MM/YYYY"
+                      defaultValue={
+                        selectedOrder.license_key_exp_date || licenseKeyExp
+                      }
+                      onChange={(e) => setLicenseKeyExp(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
+
+                <div className="d-flex align-items-center mt-4">
+                  <div
+                    className="d-grid me-3 cursor-pointer"
+                    style={{
+                      width: 40,
+                      height: 40,
+                      background: "#263238",
+                      borderRadius: "10px",
+                      placeContent: "center",
+                    }}
+                  >
+                    <svg
+                      width="16"
+                      height="19"
+                      viewBox="0 0 16 19"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M14.0759 9.58066L8.44551 15.211C6.90171 16.7548 4.44979 16.7548 2.9968 15.211C1.45299 13.6672 1.45299 11.2153 2.9968 9.76229L10.2618 2.49733C11.1699 1.68002 12.5321 1.68002 13.4402 2.49733C14.3483 3.40545 14.3483 4.85844 13.4402 5.67575L7.17415 11.9418C6.90171 12.2142 6.44765 12.2142 6.17521 11.9418C5.90278 11.6693 5.90278 11.2153 6.17521 10.9428L10.8066 6.31143C11.1699 5.94818 11.1699 5.40331 10.8066 5.04006C10.4434 4.67682 9.8985 4.67682 9.53526 5.04006L4.90385 9.76229C3.90491 10.7612 3.90491 12.305 4.90385 13.304C5.90278 14.2121 7.44658 14.2121 8.44551 13.304L14.7115 7.03793C16.3462 5.40331 16.3462 2.86058 14.7115 1.22596C13.0769 -0.408654 10.5342 -0.408654 8.89957 1.22596L1.63462 8.49092C0.544872 9.58066 0 11.0337 0 12.4866C0 15.6651 2.54273 18.117 5.72115 18.117C7.26496 18.117 8.62714 17.4813 9.71688 16.4824L15.3472 10.852C15.7105 10.4888 15.7105 9.94391 15.3472 9.58066C14.984 9.21741 14.4391 9.21741 14.0759 9.58066Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </div>
+                  Attach Invoice
+                </div>
+                <div className="text-right mt-5">
+                  <button
+                    className="btn btn_theme btn_theme2 w-50"
+                    onClick={handleLicenseSubmit}
+                  >
+                    Done
+                  </button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={invoice}
+            onHide={() => setInvoice(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="invoice-modal border-0"
+          >
+            <Card className="invoice_modal_card p-3 vh-100">
+              <Card.Body>
+                <embed
+                  src={
+                    selectedOrder.invoice + "#toolbar=0&navpanes=0&scrollbar=0"
+                  }
+                  type="application/pdf"
+                  height="100%"
+                  width="100%"
+                ></embed>
+              </Card.Body>
+            </Card>
+          </Modal>
+        </>
+      )}
     </Container>
   );
 };

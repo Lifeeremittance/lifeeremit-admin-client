@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Container, Form } from "react-bootstrap";
+import Cookies  from "universal-cookie";
 import "react-phone-number-input/style.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { validateToken } from "../../services/auth";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -12,15 +14,24 @@ export const Verify: React.FC<Props> = () => {
   const navigate = useNavigate();
   const [passcode, setPasscode] = useState<string>("");
 
-  const handleSubmit = (e: any) => {
+  const cookies = new Cookies();
+
+  const search = useLocation().search;
+  const email: any = new URLSearchParams(search).get("email");
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (passcode === "123456") {
-      toast.success("Login Successful");
+    const response = await validateToken(
+      passcode,
+      email,
+    );
+    console.log(response);
+    if (response?.status === 200) {
+      cookies.set("jwt", response.data.access_token, { path: "/" });
+      toast.success(response.data.data);
       navigate("/overview");
     } else {
-      console.log(passcode);
-      toast.error("Invalid Passcode");
-      setPasscode("");
+      toast.error(response);
     }
   };
 
@@ -42,7 +53,7 @@ export const Verify: React.FC<Props> = () => {
           clipRule="evenodd"
           d="M733.48 -60.0636C878.093 62.7752 739.438 323.838 581.809 509.409C493.454 613.425 413.559 433.854 332.5 365C193.637 247.045 -109.654 228.823 41.7079 50.6307C241.585 -184.676 550.107 -215.826 733.48 -60.0636Z"
           fill="url(#paint0_linear_50_19)"
-          fill-opacity="0.6"
+          fillOpacity="0.6"
         />
         <defs>
           <linearGradient
@@ -53,8 +64,8 @@ export const Verify: React.FC<Props> = () => {
             y2="593.816"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#D1D1E9" />
-            <stop offset="1" stop-color="#D1D1E9" />
+            <stop stopColor="#D1D1E9" />
+            <stop offset="1" stopColor="#D1D1E9" />
           </linearGradient>
         </defs>
       </svg>
@@ -72,7 +83,7 @@ export const Verify: React.FC<Props> = () => {
           clipRule="evenodd"
           d="M-120.766 588.371C-320.009 600.807 -401.479 365.215 -414.098 163.046C-421.171 49.7251 -266.72 46.2394 -155.04 39.2686C36.2806 27.3269 317.915 -77.5319 330.033 116.599C346.034 372.953 131.877 572.602 -120.766 588.371Z"
           fill="url(#paint0_linear_50_20)"
-          fill-opacity="0.3"
+          fillOpacity="0.3"
         />
         <defs>
           <linearGradient
@@ -83,8 +94,8 @@ export const Verify: React.FC<Props> = () => {
             y2="-133.817"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#D1D1E9" />
-            <stop offset="1" stop-color="#D1D1E9" />
+            <stop stopColor="#D1D1E9" />
+            <stop offset="1" stopColor="#D1D1E9" />
           </linearGradient>
         </defs>
       </svg>
@@ -97,11 +108,12 @@ export const Verify: React.FC<Props> = () => {
         <Form.Group controlId="formBasicEmail">
           <Form.Label className="fw-bold">Passcode</Form.Label>
           <Form.Control
-            type="email"
+            type="text"
             placeholder="Enter Passcode"
             className="form_inputs mb-4"
             value={passcode}
             onChange={(e) => setPasscode(e.target.value)}
+            autoComplete="off"
           />
 
           <button className="btn btn_theme w-100 mb-4" onClick={handleSubmit}>
