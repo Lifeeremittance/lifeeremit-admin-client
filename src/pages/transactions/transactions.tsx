@@ -161,30 +161,15 @@ export const Transactions: React.FC<Props> = () => {
     </Dropdown.Menu>
   );
 
-  const licensed = (
-    <div className="body-bg text-theme py-2 px-3 status_border_radius">
-      Licensed
-    </div>
-  );
+  const licensed = <div className="text-theme">Licensed</div>;
 
-  const temp = (
-    <div className="grey-bg text-dark py-2 px-3 status_border_radius">
-      Temp Key
-    </div>
-  );
+  const temp = <div className="">Temp Key</div>;
 
-  const new_order = (
-    <div className="bg-warning text-dark py-2 px-3 status_border_radius">
-      New Order
-    </div>
-  );
+  const new_order = <div className="text-warning">New Order</div>;
 
   const payment_successful = (
-    <div className="bg-success text-white py-2 px-3 status_border_radius">
-      Payment Successful
-    </div>
+    <div className="text-success">Payment Successful</div>
   );
-
   const handleTempSumbit = async (e: any) => {
     e.preventDefault();
     const response = await updateOrder(selectedOrder._id, {
@@ -554,14 +539,18 @@ export const Transactions: React.FC<Props> = () => {
                     </b>
                   </Col>
                 </Row>
-                {/* <Row className="mb-3">
+                <Row className="mb-3">
                   <Col xs={6}>
                     <span className="text-muted">Transaction No</span>
                   </Col>
                   <Col xs={6}>
-                    <b>PM001</b>
+                    <b>
+                      {selectedOrder.order_number
+                        ? selectedOrder.order_number
+                        : "-"}
+                    </b>
                   </Col>
-                </Row> */}
+                </Row>
                 <Row className="mb-3">
                   <Col xs={6}>
                     <span className="text-muted">Reference No</span>
@@ -673,14 +662,18 @@ export const Transactions: React.FC<Props> = () => {
                     <b>{selectedOrder.license_key || "-"}</b>
                   </Col>
                 </Row>
-                {/* <Row className="mt-2">
-          <Col xs={5}>
-            <span className="text-muted">Transaction No</span>
-          </Col>
-          <Col xs={7}>
-            <b>PM0001</b>
-          </Col>
-        </Row> */}
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Transaction No</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.order_number
+                        ? selectedOrder.order_number
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
 
                 <div className="dotted my-3"></div>
 

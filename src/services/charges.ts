@@ -4,8 +4,8 @@ import Cookie from "universal-cookie";
 const cookie = new Cookie();
 const jwt = cookie.get("jwt");
 
-export const getRates = async (provider: any) => {
-  const response = await Api.get(`/rates/${provider}`, {
+export const getCharges = async () => {
+  const response = await Api.get(`/charges`, {
     headers: {
       Authorization: `Bearer ${jwt}`,
     },
@@ -13,11 +13,15 @@ export const getRates = async (provider: any) => {
   return response.data.data;
 };
 
-export const editRate = async (object: any) => {
+export const editCharge = async (
+  serviceCharge: string,
+  productInterest: string
+) => {
   const response = await Api.put(
-    `/rates`,
+    `/charges`,
     {
-      ...object,
+      serviceCharge,
+      productInterest,
     },
     {
       headers: {

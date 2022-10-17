@@ -16,7 +16,11 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { createProvider, getProviders } from "../../services/providers";
+import {
+  createProvider,
+  getProviders,
+  updateProvider,
+} from "../../services/providers";
 import { toast } from "react-toastify";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
@@ -26,14 +30,22 @@ type Props = {
 };
 
 export const Providers: React.FC<Props> = () => {
-  const [show, setShow] = useState(false);
-  const [name, setName] = useState("");
+  const [show, setShow] = useState<boolean>(false);
+  const [show2, setShow2] = useState<boolean>(false);
+  const [show3, setShow3] = useState<boolean>(false);
+
+  const [name, setName] = useState<string>("");
   const [image, setImage] = useState<any>({
     preview: "",
     raw: "",
   });
+  const [name2, setName2] = useState<string>("");
+  const [image2, setImage2] = useState<any>({
+    preview: "",
+    raw: "",
+  });
   const [providers, setProviders] = useState<any>([]);
-  const [providerId, setProviderId] = useState("");
+  const [providerId, setProviderId] = useState<string>("");
 
   useEffect(() => {
     getProviders()
@@ -53,7 +65,6 @@ export const Providers: React.FC<Props> = () => {
   };
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
-  const storageRef = ref(storage, name);
 
   type CustomToggleProps = {
     children: React.ReactNode;
@@ -77,13 +88,22 @@ export const Providers: React.FC<Props> = () => {
 
   const menu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
-      <Dropdown.Item eventKey="1">Edit OEM</Dropdown.Item>
       <Dropdown.Item
-        eventKey="2"
+        eventKey="1"
         className="text-theme"
         onClick={() => navigate("/products/" + providerId)}
       >
         Edit Rate
+      </Dropdown.Item>
+      <Dropdown.Item eventKey="2" onClick={() => setShow2(true)}>
+        Edit OEM
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="3"
+        className="text-danger"
+        onClick={() => setShow3(true)}
+      >
+        Delete OEM
       </Dropdown.Item>
     </Dropdown.Menu>
   );
@@ -97,6 +117,17 @@ export const Providers: React.FC<Props> = () => {
     }
   };
 
+  const handleChange2 = (e: any) => {
+    if (e.target.files.length) {
+      setImage2({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  console.log(providerId);
+
   const triggerFileInput = () => {
     const hold = document?.getElementById("upload-button");
     hold?.click();
@@ -104,6 +135,7 @@ export const Providers: React.FC<Props> = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    const storageRef = ref(storage, name);
     const uploadTask = uploadBytesResumable(storageRef, image.raw);
     await uploadTask;
     const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
@@ -118,6 +150,64 @@ export const Providers: React.FC<Props> = () => {
         preview: "",
         raw: "",
       });
+    } else {
+      toast.error(response);
+    }
+  };
+
+  const handleSubmit2 = async (e: any) => {
+    e.preventDefault();
+    const storageRef = ref(storage, name2);
+    const uploadTask = uploadBytesResumable(storageRef, image2.raw);
+    await uploadTask;
+    const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+    const response = await updateProvider(providerId, {
+      name: name2,
+      logo: photoUrl,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newProviders = providers.map((provider: any) => {
+        const { name, logo, ...rest } = provider;
+        if (provider._id === providerId) {
+          return {
+            ...rest,
+            name: name2,
+            logo: photoUrl,
+          };
+        } else {
+          return provider;
+        }
+      });
+      setProviders(newProviders);
+
+      toast.success("Provider edited successfully");
+      setShow2(false);
+      setName2("");
+      setImage2({
+        preview: "",
+        raw: "",
+      });
+    } else {
+      toast.error(response);
+    }
+  };
+
+  const handleDelete = async (e: any) => {
+    e.preventDefault();
+
+    const response = await updateProvider(providerId, {
+      is_active: false,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newProviders = providers.filter((provider: any) => {
+        return provider._id !== providerId;
+      });
+      setProviders(newProviders);
+
+      toast.success("Provider deleted successfully");
+      setShow3(false);
     } else {
       toast.error(response);
     }
@@ -290,6 +380,119 @@ export const Providers: React.FC<Props> = () => {
                 onClick={handleSubmit}
               >
                 Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show2}
+        onHide={() => setShow2(false)}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="small-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center mb-3">
+              <b className="fs-5">Edit Service Provider</b>
+            </div>
+
+            <Form>
+              <Form.Group controlId="formForPayment">
+                <Form.Label>
+                  <b>OEM</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  value={name2}
+                  onChange={(e) => setName2(e.target.value)}
+                />
+                <Form.Label>
+                  <b>OEM Logo</b>
+                </Form.Label>
+                <div
+                  className="d-flex align-items-center justify-content-center to_upload cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  <span className="d-flex flex-column align-items-center w-100">
+                    {image2.preview ? (
+                      <img
+                        src={image2.preview}
+                        height="98px"
+                        width="98px"
+                        alt="profile"
+                        onClick={triggerFileInput}
+                      />
+                    ) : (
+                      <>
+                        <svg
+                          width="50"
+                          height="34"
+                          viewBox="0 0 50 34"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M40.3125 12.5833C38.8958 5.39583 32.5833 0 25 0C18.9792 0 13.75 3.41667 11.1458 8.41667C4.875 9.08333 0 14.3958 0 20.8333C0 27.7292 5.60417 33.3333 12.5 33.3333H39.5833C45.3333 33.3333 50 28.6667 50 22.9167C50 17.4167 45.7292 12.9583 40.3125 12.5833ZM39.5833 29.1667H12.5C7.89583 29.1667 4.16667 25.4375 4.16667 20.8333C4.16667 16.5625 7.35417 13 11.5833 12.5625L13.8125 12.3333L14.8542 10.3542C16.8333 6.54167 20.7083 4.16667 25 4.16667C30.4583 4.16667 35.1667 8.04167 36.2292 13.3958L36.8542 16.5208L40.0417 16.75C43.2917 16.9583 45.8333 19.6875 45.8333 22.9167C45.8333 26.3542 43.0208 29.1667 39.5833 29.1667ZM16.6667 18.75H21.9792V25H28.0208V18.75H33.3333L25 10.4167L16.6667 18.75Z"
+                            fill="#C7C7CC"
+                          />
+                        </svg>
+                        <span className="text-small">Upload Logo</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".png, .jpg, .jpeg"
+                  onChange={handleChange2}
+                />
+              </Form.Group>
+            </Form>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleSubmit2}
+              >
+                Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show3}
+        onHide={() => setShow3(false)}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="details-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center">
+              <b className="fs-5">Are you sure you want to delete this OEM?</b>
+            </div>
+            <hr className="mt-2 mb-3" />
+
+            <span className="fs-6">
+              Note: Deleting this OEM is an action that cannot be undone
+            </span>
+
+            <div className="text-right mt-5">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleDelete}
+              >
+                Delete
               </button>
             </div>
           </Card.Body>

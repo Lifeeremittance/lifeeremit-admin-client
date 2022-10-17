@@ -1,4 +1,5 @@
 import _axios, { AxiosRequestConfig } from "axios";
+import Cookies from "universal-cookie";
 
 const baseURL = process.env["REACT_APP_API_URL"];
 const instance = _axios.create({
@@ -8,6 +9,22 @@ const instance = _axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// AXIOS INTERCEPTOR FOR ADDING AUTHORIZATION HEADER
+instance.interceptors.request.use(
+  (config: AxiosRequestConfig) => {
+    const cookies = new Cookies();
+    const token = cookies.get("jwt");
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (err) => {
+    console.log(err);
+    return Promise.reject(err);
+  }
+);
 
 const handleApiSuccess = (res: any) => {
   return res;
@@ -26,9 +43,7 @@ const handleApiError = (err: {
 
   // console.log(err.response);
   // listen for 401 unauthorized response and expired jwt to bounce the user back to the login page
-  if (
-    err.response.data.message === "jwt expired"
-  ) {
+  if (err.response.data.message === "jwt expired") {
     window.location.href = "/signin";
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   }

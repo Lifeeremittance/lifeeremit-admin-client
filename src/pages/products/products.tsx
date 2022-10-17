@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Container, Col, Row, Modal, Card, Form } from "react-bootstrap";
+import {
+  Container,
+  Col,
+  Row,
+  Modal,
+  Card,
+  Form,
+  Dropdown,
+} from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import { createProduct, getProducts } from "../../services/products";
+import {
+  createProduct,
+  getProducts,
+  updateProduct,
+} from "../../services/products";
 import { toast } from "react-toastify";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
@@ -11,10 +23,15 @@ type Props = {
 };
 
 export const Products: React.FC<Props> = () => {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState<boolean>(false);
+  const [show2, setShow2] = useState<boolean>(false);
+  const [show3, setShow3] = useState<boolean>(false);
+
   const [productName, setProductName] = useState("");
+  const [productName2, setProductName2] = useState("");
+
   const [products, setProducts] = useState<any>([]);
-  //   const [providerId, setProviderId] = useState("");
+  const [product, setProduct] = useState<any>({});
 
   const { id, name } = useParams();
 
@@ -29,6 +46,45 @@ export const Products: React.FC<Props> = () => {
       });
   }, [id]);
 
+  type CustomToggleProps = {
+    children: React.ReactNode;
+    onClick: (event: any) => {};
+  };
+
+  const CustomToggle = React.forwardRef(
+    (props: CustomToggleProps, ref: React.Ref<HTMLAnchorElement>) => (
+      <b
+        ref={ref}
+        onClick={(e) => {
+          e.preventDefault();
+          props.onClick(e);
+        }}
+        className="float-right cursor-pointer weird-margin"
+      >
+        {props.children}
+      </b>
+    )
+  );
+
+  const menu = (
+    <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
+      <Dropdown.Item
+        eventKey="1"
+        className="text-theme"
+        onClick={() => setShow2(true)}
+      >
+        Edit Product
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="3"
+        className="text-danger"
+        onClick={() => setShow3(true)}
+      >
+        Delete Product
+      </Dropdown.Item>
+    </Dropdown.Menu>
+  );
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const response = await createProduct(productName, id);
@@ -37,6 +93,54 @@ export const Products: React.FC<Props> = () => {
       toast.success("Product created successfully");
       setShow(false);
       setProductName("");
+    } else {
+      toast.error(response);
+    }
+  };
+
+  const handleSubmit2 = async (e: any) => {
+    e.preventDefault();
+    const response = await updateProduct(product._id, {
+      name: productName2,
+    });
+    if (response.status === 200) {
+      const newProducts = products.map((p: any) => {
+        const { name, ...rest } = p;
+        if (p._id === product._id) {
+          console.log("hi");
+          return {
+            ...rest,
+            name: productName2,
+          };
+        } else {
+          return p;
+        }
+      });
+      setProducts(newProducts);
+
+      toast.success("Product edit successfully");
+      setShow2(false);
+      setProductName2("");
+    } else {
+      toast.error(response);
+    }
+  };
+
+  const handleDelete = async (e: any) => {
+    e.preventDefault();
+
+    const response = await updateProduct(product._id, {
+      is_active: false,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newProducts = products.filter((p: any) => {
+        return p._id !== product._id;
+      });
+      setProducts(newProducts);
+
+      toast.success("Provider deleted successfully");
+      setShow3(false);
     } else {
       toast.error(response);
     }
@@ -58,11 +162,45 @@ export const Products: React.FC<Props> = () => {
               {products.length > 0
                 ? products.map(
                     (product: any, index: React.Key | null | undefined) => (
-                      <div
-                        className="bg-white p-3 rate_card w-75 text-capitalize mb-3"
-                        key={index}
-                      >
-                        {product.name}
+                      <div className="position-relative w-75" key={index}>
+                        <div
+                          className="d-flex align-items-center justify-content-center pencil_icon position-absolute cursor-pointer"
+                          style={{
+                            height: "28px",
+                            width: "28px",
+                            right: "-10px",
+                            top: "-10px",
+                          }}
+                          onClick={() => setProduct(product)}
+                        >
+                          <Dropdown className="position-absolute">
+                            <Dropdown.Toggle
+                              as={CustomToggle}
+                              id="dropdown-custom-components"
+                              split
+                            >
+                              <svg
+                                width="14"
+                                height="13"
+                                viewBox="0 0 14 13"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M0.862022 9.41188L0.839844 11.918C0.839844 12.0511 0.8842 12.2063 0.995091 12.295C1.10598 12.3838 1.23905 12.4503 1.37212 12.4503L3.87826 12.4281C4.01133 12.4281 4.1444 12.3616 4.25529 12.2729L12.8604 3.66772C13.06 3.46812 13.06 3.11327 12.8604 2.91366L10.3765 0.429703C10.1769 0.230099 9.82202 0.230099 9.62242 0.429703L7.89252 2.1596L1.01727 9.03485C0.906379 9.14574 0.862022 9.27881 0.862022 9.41188ZM11.7293 3.29069L10.7535 4.26653L9.02361 2.53663L9.99945 1.56079L11.7293 3.29069ZM1.92658 9.63366L8.26955 3.29069L9.99945 5.02059L3.65648 11.3636H1.92658V9.63366Z"
+                                  fill="#263238"
+                                />
+                              </svg>
+                            </Dropdown.Toggle>
+                            {menu}
+                          </Dropdown>
+                        </div>
+                        <div
+                          className="bg-white p-3 rate_card text-capitalize mb-3"
+                          key={index}
+                        >
+                          {product.name}
+                        </div>
                       </div>
                     )
                   )
@@ -113,7 +251,7 @@ export const Products: React.FC<Props> = () => {
         <Card className="details_modal_card p-3">
           <Card.Body>
             <div className="text-center mb-3">
-              <b className="fs-6">Add Service Provider</b>
+              <b className="fs-6">Add Product</b>
             </div>
 
             <Form>
@@ -136,6 +274,79 @@ export const Products: React.FC<Props> = () => {
                 onClick={handleSubmit}
               >
                 Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show2}
+        onHide={() => setShow2(false)}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="small-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center mb-3">
+              <b className="fs-6">Edit Product</b>
+            </div>
+
+            <Form>
+              <Form.Group controlId="formForPayment">
+                <Form.Label>
+                  <b>Product</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  value={productName2}
+                  onChange={(e) => setProductName2(e.target.value)}
+                />
+              </Form.Group>
+            </Form>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleSubmit2}
+              >
+                Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show3}
+        onHide={() => setShow3(false)}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="details-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center">
+              <b className="fs-5">
+                Are you sure you want to delete this Product?
+              </b>
+            </div>
+            <hr className="mt-2 mb-3" />
+
+            <span className="fs-6">
+              Note: Deleting this Product is an action that cannot be undone
+            </span>
+
+            <div className="text-right mt-5">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleDelete}
+              >
+                Delete
               </button>
             </div>
           </Card.Body>

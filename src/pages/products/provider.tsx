@@ -104,6 +104,7 @@ export const Provider: React.FC<Props> = () => {
 
     console.log(response);
     setShow(false);
+    window.location.reload();
   };
 
   return (
@@ -186,25 +187,33 @@ export const Provider: React.FC<Props> = () => {
                             />
                           </svg>
                         </div>
-                        <div className="bg-white py-3 text-center rate_card d-flex align-items-center h-100 justify-content-around">
+                        <div className="bg-white py-3 text-center rate_card d-flex align-items-center justify-content-around">
                           {currencies.length > 0
-                            ? currencies.map((currency: any) => (
-                                <div className="fs-6" key={currency._id}>
-                                  {/* get the value from rates which aligns with currency and country */}
-                                  {rates.length > 0
-                                    ? rates.map((rate: any) => {
-                                        if (rate.currency._id !== currency._id)
-                                          return;
-                                        if (
-                                          rate.currency._id === currency._id &&
-                                          rate.country._id === country._id
-                                        ) {
-                                          return rate.value;
-                                        } else return "-";
-                                      })
-                                    : "0"}
-                                </div>
-                              ))
+                            ? currencies.map((currency: any) => {
+                                return (
+                                  <div className="fs-6" key={currency._id}>
+                                    {/* get the value from rates which aligns with currency and country */}
+                                    {rates.length > 0
+                                      ? // loop through rates and get the value which aligns with currency and country and "-" if not found
+                                        rates.map((rate: any) => {
+                                          if (
+                                            rate.currency._id !== currency._id
+                                          )
+                                            return;
+                                          if (rate.country._id !== country._id)
+                                            return;
+                                          if (
+                                            rate.currency._id ===
+                                              currency._id &&
+                                            rate.country._id === country._id
+                                          ) {
+                                            return rate.value;
+                                          }
+                                        })
+                                      : "-"}
+                                  </div>
+                                );
+                              })
                             : null}
                         </div>
                       </Col>

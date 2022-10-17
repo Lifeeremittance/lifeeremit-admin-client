@@ -3,7 +3,7 @@ import Cookies from "universal-cookie";
 import { Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 
-const Sidebar = () => {
+const Charges = () => {
   const logout = () => {
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     sessionStorage.removeItem("userId");
@@ -112,4 +112,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default Charges;
