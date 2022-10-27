@@ -7,6 +7,7 @@ import {
   Card,
   Form,
   InputGroup,
+  Dropdown,
 } from "react-bootstrap";
 import { initializeApp } from "firebase/app";
 import {
@@ -17,7 +18,7 @@ import {
 } from "firebase/storage";
 import { toast } from "react-toastify";
 import { createCurrency, getCurrencies } from "../../services/currency";
-import { createCountry } from "../../services/country";
+import { createCountry, getCountries } from "../../services/country";
 import { editCharge, getCharges } from "../../services/charges";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
@@ -45,6 +46,7 @@ export const Currencies: React.FC<Props> = () => {
   const [productInterest, setProductInterest] = useState<string>("");
 
   const [currencies, setCurrencies] = useState<any>([]);
+  const [countries, setCountries] = useState<any>([]);
 
   const [selected, setSelected] = useState<string>("currencies");
 
@@ -58,6 +60,14 @@ export const Currencies: React.FC<Props> = () => {
             if (res.length > 0) {
               setServiceCharge(res[0].serviceCharge);
               setProductInterest(res[0].productInterest);
+
+              getCountries()
+                .then((res) => {
+                  setCountries(res);
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
             }
           })
           .catch((err) => {
@@ -68,6 +78,45 @@ export const Currencies: React.FC<Props> = () => {
         console.log(err);
       });
   }, []);
+
+  type CustomToggleProps = {
+    children: React.ReactNode;
+    onClick: (event: any) => {};
+  };
+
+  const CustomToggle = React.forwardRef(
+    (props: CustomToggleProps, ref: React.Ref<HTMLAnchorElement>) => (
+      <b
+        ref={ref}
+        onClick={(e) => {
+          e.preventDefault();
+          props.onClick(e);
+        }}
+        className="float-right cursor-pointer weird-margin"
+      >
+        {props.children}
+      </b>
+    )
+  );
+
+  const menu = (
+    <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
+      <Dropdown.Item
+        eventKey="1"
+        className="text-theme"
+        // onClick={() => setShow2(true)}
+      >
+        Edit Product
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="3"
+        className="text-danger"
+        // onClick={() => setShow3(true)}
+      >
+        Delete Product
+      </Dropdown.Item>
+    </Dropdown.Menu>
+  );
 
   const firebaseConfig = {
     // ...
@@ -155,8 +204,6 @@ export const Currencies: React.FC<Props> = () => {
 
           <div className="body-bg vh-90 py-5 px-3 y-scroll">
             <Container fluid className="special-height">
-              {/* <b className="fs-3">Rates</b> */}
-
               <div className="weird-nav">
                 <span
                   className={`weird-nav-item cursor-pointer ${
@@ -165,6 +212,14 @@ export const Currencies: React.FC<Props> = () => {
                   onClick={() => setSelected("currencies")}
                 >
                   Currencies
+                </span>
+                <span
+                  className={`weird-nav-item cursor-pointer ${
+                    selected === "countries" ? "selected_nav" : ""
+                  }`}
+                  onClick={() => setSelected("countries")}
+                >
+                  Countries
                 </span>
                 <span
                   className={`weird-nav-item cursor-pointer ${
@@ -199,65 +254,35 @@ export const Currencies: React.FC<Props> = () => {
                       : null}
                   </div>
 
-                  <div className="d-flex align-items-center justify-content-between mt-5">
-                    <div className="d-flex align-items-center mt-4">
-                      <div
-                        className="d-grid me-3 cursor-pointer"
-                        style={{
-                          width: 40,
-                          height: 40,
-                          background: "#263238",
-                          borderRadius: "10px",
-                          placeContent: "center",
-                        }}
-                        onClick={() => setShow(true)}
+                  <div className="d-flex align-items-center mt-5">
+                    <div
+                      className="d-grid me-3 cursor-pointer"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        background: "#263238",
+                        borderRadius: "10px",
+                        placeContent: "center",
+                      }}
+                      onClick={() => setShow(true)}
+                    >
+                      <svg
+                        width="21"
+                        height="21"
+                        viewBox="0 0 21 21"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        <svg
-                          width="21"
-                          height="21"
-                          viewBox="0 0 21 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M19.6875 9.1875H11.8125V1.3125C11.8125 0.964403 11.6742 0.630564 11.4281 0.384423C11.1819 0.138281 10.8481 0 10.5 0C10.1519 0 9.81806 0.138281 9.57192 0.384423C9.32578 0.630564 9.1875 0.964403 9.1875 1.3125V9.1875H1.3125C0.964403 9.1875 0.630564 9.32578 0.384423 9.57192C0.138281 9.81806 0 10.1519 0 10.5C0 10.8481 0.138281 11.1819 0.384423 11.4281C0.630564 11.6742 0.964403 11.8125 1.3125 11.8125H9.1875V19.6875C9.1875 20.0356 9.32578 20.3694 9.57192 20.6156C9.81806 20.8617 10.1519 21 10.5 21C10.8481 21 11.1819 20.8617 11.4281 20.6156C11.6742 20.3694 11.8125 20.0356 11.8125 19.6875V11.8125H19.6875C20.0356 11.8125 20.3694 11.6742 20.6156 11.4281C20.8617 11.1819 21 10.8481 21 10.5C21 10.1519 20.8617 9.81806 20.6156 9.57192C20.3694 9.32578 20.0356 9.1875 19.6875 9.1875Z"
-                            fill="white"
-                          />
-                        </svg>
-                      </div>
-                      Add Currency
+                        <path
+                          d="M19.6875 9.1875H11.8125V1.3125C11.8125 0.964403 11.6742 0.630564 11.4281 0.384423C11.1819 0.138281 10.8481 0 10.5 0C10.1519 0 9.81806 0.138281 9.57192 0.384423C9.32578 0.630564 9.1875 0.964403 9.1875 1.3125V9.1875H1.3125C0.964403 9.1875 0.630564 9.32578 0.384423 9.57192C0.138281 9.81806 0 10.1519 0 10.5C0 10.8481 0.138281 11.1819 0.384423 11.4281C0.630564 11.6742 0.964403 11.8125 1.3125 11.8125H9.1875V19.6875C9.1875 20.0356 9.32578 20.3694 9.57192 20.6156C9.81806 20.8617 10.1519 21 10.5 21C10.8481 21 11.1819 20.8617 11.4281 20.6156C11.6742 20.3694 11.8125 20.0356 11.8125 19.6875V11.8125H19.6875C20.0356 11.8125 20.3694 11.6742 20.6156 11.4281C20.8617 11.1819 21 10.8481 21 10.5C21 10.1519 20.8617 9.81806 20.6156 9.57192C20.3694 9.32578 20.0356 9.1875 19.6875 9.1875Z"
+                          fill="white"
+                        />
+                      </svg>
                     </div>
-
-                    <div className="d-flex align-items-center mt-4">
-                      <div
-                        className="d-grid me-3 cursor-pointer"
-                        style={{
-                          width: 40,
-                          height: 40,
-                          background: "#263238",
-                          borderRadius: "10px",
-                          placeContent: "center",
-                        }}
-                        onClick={() => setShow2(true)}
-                      >
-                        <svg
-                          width="21"
-                          height="21"
-                          viewBox="0 0 21 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M19.6875 9.1875H11.8125V1.3125C11.8125 0.964403 11.6742 0.630564 11.4281 0.384423C11.1819 0.138281 10.8481 0 10.5 0C10.1519 0 9.81806 0.138281 9.57192 0.384423C9.32578 0.630564 9.1875 0.964403 9.1875 1.3125V9.1875H1.3125C0.964403 9.1875 0.630564 9.32578 0.384423 9.57192C0.138281 9.81806 0 10.1519 0 10.5C0 10.8481 0.138281 11.1819 0.384423 11.4281C0.630564 11.6742 0.964403 11.8125 1.3125 11.8125H9.1875V19.6875C9.1875 20.0356 9.32578 20.3694 9.57192 20.6156C9.81806 20.8617 10.1519 21 10.5 21C10.8481 21 11.1819 20.8617 11.4281 20.6156C11.6742 20.3694 11.8125 20.0356 11.8125 19.6875V11.8125H19.6875C20.0356 11.8125 20.3694 11.6742 20.6156 11.4281C20.8617 11.1819 21 10.8481 21 10.5C21 10.1519 20.8617 9.81806 20.6156 9.57192C20.3694 9.32578 20.0356 9.1875 19.6875 9.1875Z"
-                            fill="white"
-                          />
-                        </svg>
-                      </div>
-                      Add Country
-                    </div>
+                    Add Currency
                   </div>
                 </>
-              ) : (
+              ) : selected === "charges" ? (
                 <div className="d-flex justify-content-between flex-column special-height2">
                   <Form>
                     <Form.Label className="fw-bold">Service Charge</Form.Label>
@@ -313,7 +338,52 @@ export const Currencies: React.FC<Props> = () => {
                     </button>
                   </div>
                 </div>
-              )}
+              ) : countries.length > 0 ? (
+                countries.map(
+                  (country: any, index: React.Key | null | undefined) => (
+                    <div className="position-relative w-75" key={index}>
+                      <div
+                        className="d-flex align-items-center justify-content-center pencil_icon position-absolute cursor-pointer"
+                        style={{
+                          height: "28px",
+                          width: "28px",
+                          right: "-10px",
+                          top: "-10px",
+                        }}
+                        // onClick={() => setcountry(country)}
+                      >
+                        <Dropdown className="position-absolute">
+                          <Dropdown.Toggle
+                            as={CustomToggle}
+                            id="dropdown-custom-components"
+                            split
+                          >
+                            <svg
+                              width="14"
+                              height="13"
+                              viewBox="0 0 14 13"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M0.862022 9.41188L0.839844 11.918C0.839844 12.0511 0.8842 12.2063 0.995091 12.295C1.10598 12.3838 1.23905 12.4503 1.37212 12.4503L3.87826 12.4281C4.01133 12.4281 4.1444 12.3616 4.25529 12.2729L12.8604 3.66772C13.06 3.46812 13.06 3.11327 12.8604 2.91366L10.3765 0.429703C10.1769 0.230099 9.82202 0.230099 9.62242 0.429703L7.89252 2.1596L1.01727 9.03485C0.906379 9.14574 0.862022 9.27881 0.862022 9.41188ZM11.7293 3.29069L10.7535 4.26653L9.02361 2.53663L9.99945 1.56079L11.7293 3.29069ZM1.92658 9.63366L8.26955 3.29069L9.99945 5.02059L3.65648 11.3636H1.92658V9.63366Z"
+                                fill="#263238"
+                              />
+                            </svg>
+                          </Dropdown.Toggle>
+                          {menu}
+                        </Dropdown>
+                      </div>
+                      <div
+                        className="bg-white p-3 rate_card text-capitalize mb-3"
+                        key={index}
+                      >
+                        {country.countryName}
+                      </div>
+                    </div>
+                  )
+                )
+              ) : null}
             </Container>
           </div>
         </Col>
