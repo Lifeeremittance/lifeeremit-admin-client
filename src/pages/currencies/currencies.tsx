@@ -44,6 +44,7 @@ export const Currencies: React.FC<Props> = () => {
 
   const [serviceCharge, setServiceCharge] = useState<string>("");
   const [productInterest, setProductInterest] = useState<string>("");
+  const [dollarRate, setDollarRate] = useState<string>("");
 
   const [currencies, setCurrencies] = useState<any>([]);
   const [countries, setCountries] = useState<any>([]);
@@ -60,6 +61,7 @@ export const Currencies: React.FC<Props> = () => {
             if (res.length > 0) {
               setServiceCharge(res[0].serviceCharge);
               setProductInterest(res[0].productInterest);
+              setDollarRate(res[0].dollarRate);
 
               getCountries()
                 .then((res) => {
@@ -189,7 +191,11 @@ export const Currencies: React.FC<Props> = () => {
   const handleChargeSubmit = async (e: any) => {
     e.preventDefault();
 
-    const response = await editCharge(serviceCharge, productInterest);
+    const response = await editCharge(
+      serviceCharge,
+      productInterest,
+      dollarRate
+    );
     console.log(response);
     if (response.status === 200) toast.success("Charges updated successfully");
     else toast.error(response);
@@ -307,6 +313,28 @@ export const Currencies: React.FC<Props> = () => {
                       </InputGroup.Text>
                     </InputGroup>
 
+                    <Form.Label className="fw-bold">Dollar Rate</Form.Label>
+                    <InputGroup
+                      style={{ height: "54px", width: "328px" }}
+                      className="mb-5"
+                    >
+                      <Form.Control
+                        type="number"
+                        aria-label="Dollar rate"
+                        aria-describedby="basic-addon1"
+                        className="bg-white border_left_country fw-bold ps-4"
+                        value={dollarRate}
+                        onChange={(e) => setDollarRate(e.target.value)}
+                      />
+
+                      <InputGroup.Text
+                        id="basic-addon1"
+                        className="border-start-0 border_right_country bg-white pe-4"
+                      >
+                        $
+                      </InputGroup.Text>
+                    </InputGroup>
+
                     <Form.Label className="fw-bold">
                       Product Interest
                     </Form.Label>
@@ -378,6 +406,13 @@ export const Currencies: React.FC<Props> = () => {
                         className="bg-white p-3 rate_card text-capitalize mb-3"
                         key={index}
                       >
+                        <img
+                          src={country.countryFlag}
+                          alt=""
+                          height="27"
+                          width="38"
+                          className="me-3"
+                        />
                         {country.countryName}
                       </div>
                     </div>

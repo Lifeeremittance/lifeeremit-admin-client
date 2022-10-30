@@ -128,10 +128,10 @@ export const Provider: React.FC<Props> = () => {
               </div>
 
               <Row className="mt-5">
-                <Col md={4}>
+                <Col md={3}>
                   <img src={provider.logo} alt="" width="116px" height="40px" />
                 </Col>
-                <Col md={8}>
+                <Col md={9}>
                   <div className="text-center d-flex align-items-center h-100 justify-content-around">
                     {currencies.length > 0
                       ? currencies.map((currency: any, index: any) => (
@@ -147,7 +147,7 @@ export const Provider: React.FC<Props> = () => {
               {countries.length > 0
                 ? countries.map((country: any, index: any) => (
                     <Row className="mt-4" key={index}>
-                      <Col md={4} className="d-flex align-items-center">
+                      <Col md={3} className="d-flex align-items-center">
                         <div className="d-flex align-items-center">
                           <img
                             src={country.countryFlag}
@@ -160,7 +160,7 @@ export const Provider: React.FC<Props> = () => {
                           </span>
                         </div>
                       </Col>
-                      <Col md={8} className="position-relative">
+                      <Col md={9} className="position-relative">
                         <div
                           className="d-flex align-items-center justify-content-center pencil_icon position-absolute cursor-pointer"
                           style={{
@@ -236,10 +236,10 @@ export const Provider: React.FC<Props> = () => {
         <Card>
           <Card.Body className="p-5">
             <Row className="mt-5">
-              <Col md={4}>
+              <Col md={3}>
                 <img src={provider.logo} alt="" width="116px" height="40px" />
               </Col>
-              <Col md={8}>
+              <Col md={9}>
                 <div className="text-center d-flex align-items-center h-100 justify-content-around">
                   {currencies.length > 0
                     ? currencies.map((currency: any, index: any) => (
@@ -253,7 +253,7 @@ export const Provider: React.FC<Props> = () => {
             </Row>
 
             <Row className="mt-4">
-              <Col md={4} className="d-flex align-items-center">
+              <Col md={3} className="d-flex align-items-center">
                 <div className="d-flex align-items-center">
                   <img
                     src={country.countryFlag}
@@ -266,24 +266,36 @@ export const Provider: React.FC<Props> = () => {
                   </span>
                 </div>
               </Col>
-              <Col md={8} className="position-relative">
+              <Col md={9} className="position-relative">
                 <Form>
                   <Form.Group controlId="formForPayment">
                     <div className="bg-white py-3 text-center rate_card d-flex align-items-center justify-content-around">
                       {currencies.length > 0
-                        ? currencies.map((currency: any, index: any) => (
-                            <div className="fs-6 mx-2" key={index}>
-                              <Form.Control
-                                type="number"
-                                className="w-100 border-0 border-bottom border-radius-0"
-                                // placeholder={currency.currencyName}
-                                // value={values[index].value}
-                                onChange={(e) =>
-                                  handleRateChange(e, currency._id, country._id)
-                                }
-                              />
-                            </div>
-                          ))
+                        ? currencies.map((currency: any, index: any) => {
+                            // find the rate which aligns with currency and country
+                            let rate = rates.find(
+                              (rate: any) =>
+                                rate.currency._id === currency._id &&
+                                rate.country._id === country._id
+                            );
+                            const value = rate ? rate.value : "";
+                            return (
+                              <div className="fs-6 mx-2" key={index}>
+                                <Form.Control
+                                  type="number"
+                                  className="w-100 border-0 border-bottom border-radius-0"
+                                  defaultValue={value}
+                                  onChange={(e) =>
+                                    handleRateChange(
+                                      e,
+                                      currency._id,
+                                      country._id
+                                    )
+                                  }
+                                />
+                              </div>
+                            );
+                          })
                         : null}
                     </div>
                   </Form.Group>

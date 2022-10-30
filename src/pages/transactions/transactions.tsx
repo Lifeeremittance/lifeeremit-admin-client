@@ -34,11 +34,12 @@ export const Transactions: React.FC<Props> = () => {
   const [orders, setOrders] = useState<any>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>({});
 
+  console.log(tempKeyExp);
+
   useEffect(() => {
     getOrders()
       .then((res) => {
         setOrders(res);
-        console.log(res);
       })
       .catch((err) => {
         console.log(err);
@@ -170,6 +171,7 @@ export const Transactions: React.FC<Props> = () => {
   const payment_successful = (
     <div className="text-success">Payment Successful</div>
   );
+
   const handleTempSumbit = async (e: any) => {
     e.preventDefault();
     const response = await updateOrder(selectedOrder._id, {
@@ -198,6 +200,22 @@ export const Transactions: React.FC<Props> = () => {
       setLicenseKeyModal(false);
       setLicenseKey("");
       setLicenseKeyExp("");
+    } else toast.error(response);
+  };
+
+  const contactOem = async (selectedOrder: any) => {
+    const response = await updateOrder(selectedOrder._id, {
+      status: "awaiting_key",
+    });
+    if (response.status === 200) {
+      toast.success(response.data.data);
+      // replace the status of selectedOrder with the new status and update the orders state variable with the new selectedOrder
+      selectedOrder.status = ["awaiting_key"];
+      const newOrders = orders.map((order: any) => {
+        if (order._id === selectedOrder._id) return selectedOrder;
+        return order;
+      });
+      setOrders(newOrders);
     } else toast.error(response);
   };
 
@@ -342,7 +360,7 @@ export const Transactions: React.FC<Props> = () => {
                                 ? order.product_value / 100 + " NGN"
                                 : "-"}
                             </td>
-                            <td>NGN 600</td>
+                            <td>{order.rate ? "NGN " + order.rate : "-"}</td>
                             <td>
                               {order.amount ? order.amount / 100 + " NGN" : "-"}
                             </td>
@@ -366,7 +384,10 @@ export const Transactions: React.FC<Props> = () => {
                                   >
                                     View Receipt
                                   </Dropdown.Item>
-                                  <Dropdown.Item eventKey="2">
+                                  <Dropdown.Item
+                                    eventKey="2"
+                                    onClick={() => contactOem(order)}
+                                  >
                                     Contact OEM
                                   </Dropdown.Item>
                                   <Dropdown.Item
@@ -782,7 +803,7 @@ export const Transactions: React.FC<Props> = () => {
                       <b>EXPIRY DATE</b>
                     </Form.Label>
                     <Form.Control
-                      type="text"
+                      type="date"
                       className="form_inputs mb-3 w-100"
                       placeholder="DD/MM/YYYY"
                       defaultValue={
@@ -834,7 +855,7 @@ export const Transactions: React.FC<Props> = () => {
                       <b>EXPIRY DATE</b>
                     </Form.Label>
                     <Form.Control
-                      type="text"
+                      type="date"
                       className="form_inputs mb-3 w-100"
                       placeholder="DD/MM/YYYY"
                       defaultValue={

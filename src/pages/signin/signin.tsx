@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, Form } from "react-bootstrap";
 import "react-phone-number-input/style.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { requestToken } from "../../services/auth";
 
@@ -90,7 +90,13 @@ export const Signin: React.FC<Props> = () => {
         </defs>
       </svg>
 
-      <b className="fs-3 paymit-logo">Paymit</b>
+      <b
+        className="fs-3 paymit-logo cursor-pointer"
+        onClick={() => navigate("/")}
+      >
+        Paymit
+      </b>
+
       <Form className="signup_form d-flex align-items-center flex-column bg-white p-4">
         <div className="text-center mb-5">
           <b className="fs-5">Login to your account</b>
@@ -108,13 +114,6 @@ export const Signin: React.FC<Props> = () => {
           <button className="btn btn_theme w-100 mb-4" onClick={handleSubmit}>
             Continue
           </button>
-
-          <div className="w-100 mb-4">
-            New to Paymit?
-            <Link to="/signup" className="link_theme ms-2">
-              Sign Up
-            </Link>
-          </div>
         </Form.Group>
       </Form>
     </Container>

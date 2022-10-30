@@ -35,17 +35,19 @@ export const Providers: React.FC<Props> = () => {
   const [show3, setShow3] = useState<boolean>(false);
 
   const [name, setName] = useState<string>("");
-  const [image, setImage] = useState<any>({
-    preview: "",
-    raw: "",
-  });
   const [name2, setName2] = useState<string>("");
+  const [providerId, setProviderId] = useState<string>("");
+  const [providerName, setProviderName] = useState<string>("");
+
   const [image2, setImage2] = useState<any>({
     preview: "",
     raw: "",
   });
+  const [image, setImage] = useState<any>({
+    preview: "",
+    raw: "",
+  });
   const [providers, setProviders] = useState<any>([]);
-  const [providerId, setProviderId] = useState<string>("");
 
   useEffect(() => {
     getProviders()
@@ -227,7 +229,7 @@ export const Providers: React.FC<Props> = () => {
               <div className="grid-4 mt-5">
                 {providers.length > 0
                   ? providers.map((provider: any, index: string) => (
-                      <div className="grid-item position-relative" id={index}>
+                      <div className="grid-item position-relative" key={index}>
                         <Dropdown
                           className="position-absolute"
                           style={{ right: "-20px", top: "-20px" }}
@@ -239,7 +241,10 @@ export const Providers: React.FC<Props> = () => {
                           >
                             <div
                               className="d-flex align-items-center justify-content-center pencil_icon"
-                              onClick={() => setProviderId(provider._id)}
+                              onClick={() => {
+                                setProviderId(provider._id);
+                                setProviderName(provider.name);
+                              }}
                             >
                               <svg
                                 width="22"
@@ -408,7 +413,7 @@ export const Providers: React.FC<Props> = () => {
                 <Form.Control
                   type="text"
                   className="form_inputs mb-3 w-100"
-                  value={name2}
+                  defaultValue={providerName}
                   onChange={(e) => setName2(e.target.value)}
                 />
                 <Form.Label>

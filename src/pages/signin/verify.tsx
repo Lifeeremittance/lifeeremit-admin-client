@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Container, Form } from "react-bootstrap";
-import Cookies  from "universal-cookie";
+import Cookies from "universal-cookie";
 import "react-phone-number-input/style.css";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { validateToken } from "../../services/auth";
 
@@ -21,10 +21,7 @@ export const Verify: React.FC<Props> = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const response = await validateToken(
-      passcode,
-      email,
-    );
+    const response = await validateToken(passcode, email);
     console.log(response);
     if (response?.status === 200) {
       cookies.set("jwt", response.data.access_token, { path: "/" });
@@ -100,7 +97,12 @@ export const Verify: React.FC<Props> = () => {
         </defs>
       </svg>
 
-      <b className="fs-3 paymit-logo">Paymit</b>
+      <b
+        className="fs-3 paymit-logo cursor-pointer"
+        onClick={() => navigate("/")}
+      >
+        Paymit
+      </b>
       <Form className="signup_form d-flex align-items-center flex-column bg-white p-4">
         <div className="text-center mb-4">
           <b className="fs-5">Enter Passcode</b>
@@ -119,13 +121,6 @@ export const Verify: React.FC<Props> = () => {
           <button className="btn btn_theme w-100 mb-4" onClick={handleSubmit}>
             Continue
           </button>
-
-          <div className="w-100 mb-4">
-            New to Paymit?
-            <Link to="/signup" className="link_theme ms-2">
-              Sign Up
-            </Link>
-          </div>
         </Form.Group>
       </Form>
     </Container>
