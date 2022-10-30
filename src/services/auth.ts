@@ -18,7 +18,7 @@ export const requestToken = async (email_address: string) => {
     `/auth/login/token`,
     {
       email_address,
-      entity: "user",
+      entity: "admin",
     },
     {}
   );

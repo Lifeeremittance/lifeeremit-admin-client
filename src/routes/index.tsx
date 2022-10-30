@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { Signup } from "../pages/signup";
 import { Signin, Verify } from "../pages/signin";
 import { Overview } from "../pages/overview";
 import { Transactions } from "../pages/transactions";
@@ -14,7 +13,6 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Landing/>} />
-      <Route path="/signup" element={<Signup />} />
       <Route path="/signin" element={<Signin />} />
       <Route path="/verify" element={<Verify />} />
       <Route path="/overview" element={<Overview />} />

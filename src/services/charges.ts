@@ -15,13 +15,15 @@ export const getCharges = async () => {
 
 export const editCharge = async (
   serviceCharge: string,
-  productInterest: string
+  productInterest: string,
+  dollarRate: string
 ) => {
   const response = await Api.put(
     `/charges`,
     {
       serviceCharge,
       productInterest,
+      dollarRate,
     },
     {
       headers: {
