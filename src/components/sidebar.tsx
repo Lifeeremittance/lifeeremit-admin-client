@@ -28,7 +28,7 @@ const Sidebar = () => {
           <h4 className="fw-bold pt-5">Paymit</h4>
 
           <ul className="nav flex-column pt-4 px-3 justify-content-between side-specific-height text-left">
-            <li className="nav-item mb-4">
+            {/* <li className="nav-item mb-4">
               <NavLink
                 to="/overview"
                 className="nav-link text-grey"
@@ -37,7 +37,7 @@ const Sidebar = () => {
                 <i className={`fa fa-th-large icli fs-5 align-middle me-4`}></i>
                 <span className="align-middle fs-6">Overview</span>
               </NavLink>
-            </li>
+            </li> */}
             <li className="nav-item mb-4">
               <NavLink
                 to="/transactions"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Col, Row, Dropdown, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../services/user";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
@@ -11,6 +11,8 @@ type Props = {
 
 export const Customers: React.FC<Props> = () => {
   const [users, setUsers] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getUsers()
@@ -85,13 +87,13 @@ export const Customers: React.FC<Props> = () => {
                                 ...
                               </Dropdown.Toggle>
                               <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
-                                <Dropdown.Item eventKey="1">
-                                  <Link
-                                    to={`/customers/${user._id}`}
-                                    className="text-dark no-underline"
-                                  >
-                                    View Details
-                                  </Link>
+                                <Dropdown.Item
+                                  eventKey="1"
+                                  onClick={() =>
+                                    navigate(`/customers/${user._id}`)
+                                  }
+                                >
+                                  View Details
                                 </Dropdown.Item>
                               </Dropdown.Menu>
                             </Dropdown>

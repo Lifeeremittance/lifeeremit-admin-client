@@ -26,7 +26,7 @@ export const Verify: React.FC<Props> = () => {
     if (response?.status === 200) {
       cookies.set("jwt", response.data.access_token, { path: "/" });
       toast.success(response.data.data);
-      navigate("/overview");
+      navigate("/transactions");
     } else {
       toast.error(response);
     }
