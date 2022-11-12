@@ -88,28 +88,6 @@ export const Providers: React.FC<Props> = () => {
     )
   );
 
-  const menu = (
-    <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
-      <Dropdown.Item
-        eventKey="1"
-        className="text-theme"
-        onClick={() => navigate("/products/" + providerId)}
-      >
-        Edit Rate
-      </Dropdown.Item>
-      <Dropdown.Item eventKey="2" onClick={() => setShow2(true)}>
-        Edit OEM
-      </Dropdown.Item>
-      <Dropdown.Item
-        eventKey="3"
-        className="text-danger"
-        onClick={() => setShow3(true)}
-      >
-        Delete OEM
-      </Dropdown.Item>
-    </Dropdown.Menu>
-  );
-
   const handleChange = (e: any) => {
     if (e.target.files.length) {
       setImage({
@@ -127,8 +105,6 @@ export const Providers: React.FC<Props> = () => {
       });
     }
   };
-
-  console.log(providerId);
 
   const triggerFileInput = () => {
     const hold = document?.getElementById("upload-button");
@@ -260,7 +236,30 @@ export const Providers: React.FC<Props> = () => {
                               </svg>
                             </div>
                           </Dropdown.Toggle>
-                          {menu}
+                          <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
+                            <Dropdown.Item
+                              eventKey="1"
+                              className="text-theme"
+                              onClick={() =>
+                                navigate("/products/" + providerId)
+                              }
+                            >
+                              Edit Rate
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              eventKey="2"
+                              onClick={() => setShow2(true)}
+                            >
+                              Edit OEM
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              eventKey="3"
+                              className="text-danger"
+                              onClick={() => setShow3(true)}
+                            >
+                              Delete OEM
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
                         </Dropdown>
 
                         <div

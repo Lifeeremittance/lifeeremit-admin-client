@@ -545,7 +545,9 @@ export const Transactions: React.FC<Props> = () => {
                     <span className="text-muted">Naira Rate</span>
                   </Col>
                   <Col xs={6}>
-                    <b>NGN 600</b>
+                    <b>
+                      {selectedOrder.rate ? `NGN ${selectedOrder.rate}` : "-"}
+                    </b>
                   </Col>
                 </Row>
                 <Row className="mb-3">
@@ -727,7 +729,12 @@ export const Transactions: React.FC<Props> = () => {
                     <span className="text-muted">Exchange Rate</span>
                   </Col>
                   <Col xs={7}>
-                    <b>1 USD = 600 NGN</b>
+                    <b>
+                      {selectedOrder.currency
+                        ? `1 ${selectedOrder.country.countryCode} = 
+                      ${selectedOrder.rate} ${selectedOrder.currency?.currencyCode}`
+                        : "-"}
+                    </b>
                   </Col>
                 </Row>
                 <Row className="mt-2">

@@ -27,8 +27,9 @@ export const Products: React.FC<Props> = () => {
   const [show2, setShow2] = useState<boolean>(false);
   const [show3, setShow3] = useState<boolean>(false);
 
-  const [productName, setProductName] = useState("");
-  const [productName2, setProductName2] = useState("");
+  const [productName, setProductName] = useState<string>("");
+  const [productName2, setProductName2] = useState<string>("");
+  const [editedProductName, setEditedProductName] = useState<string>("");
 
   const [products, setProducts] = useState<any>([]);
   const [product, setProduct] = useState<any>({});
@@ -171,7 +172,10 @@ export const Products: React.FC<Props> = () => {
                             right: "-10px",
                             top: "-10px",
                           }}
-                          onClick={() => setProduct(product)}
+                          onClick={() => {
+                            setProduct(product);
+                            setEditedProductName(product.name);
+                          }}
                         >
                           <Dropdown className="position-absolute">
                             <Dropdown.Toggle
@@ -302,7 +306,7 @@ export const Products: React.FC<Props> = () => {
                 <Form.Control
                   type="text"
                   className="form_inputs mb-3 w-100"
-                  value={productName2}
+                  defaultValue={editedProductName}
                   onChange={(e) => setProductName2(e.target.value)}
                 />
               </Form.Group>
