@@ -22,6 +22,33 @@ export const getCustomerOrders = async (user: string | undefined) => {
   return response.data.data;
 };
 
+export const getOrdersByProvider = async (provider: string | undefined) => {
+  const response = await Api.get(`/orders?provider=${provider}`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response.data.data;
+};
+
+export const getOrdersByProduct = async (product: string | undefined) => {
+  const response = await Api.get(`/orders?product=${product}`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response.data.data;
+};
+
+export const getOrdersByStatus = async (status: string | undefined) => {
+  const response = await Api.get(`/orders?status=${status}`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response.data.data;
+};
+
 export const createOrder = async (
   provider: string,
   product: string,

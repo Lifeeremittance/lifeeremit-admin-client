@@ -11,9 +11,24 @@ import {
   Card,
 } from "react-bootstrap";
 import { toast } from "react-toastify";
+import { initializeApp } from "firebase/app";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import Header from "../../components/header";
 import Sidebar from "../../components/sidebar";
-import { getOrders, updateOrder } from "../../services/order";
+import {
+  getOrders,
+  updateOrder,
+  getOrdersByProvider,
+  getOrdersByProduct,
+  getOrdersByStatus,
+} from "../../services/order";
+import { getProviders } from "../../services/providers";
+import { getAllProducts } from "../../services/products";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -32,19 +47,60 @@ export const Transactions: React.FC<Props> = () => {
   const [licenseKeyExp, setLicenseKeyExp] = useState("");
 
   const [orders, setOrders] = useState<any>([]);
+  const [providers, setProviders] = useState<any>([]);
+  const [products, setProducts] = useState<any>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>({});
-
-  console.log(tempKeyExp);
+  const [pdf, setPdf] = useState<any>({
+    preview: "",
+    raw: null,
+  });
 
   useEffect(() => {
     getOrders()
       .then((res) => {
         setOrders(res);
+
+        getProviders()
+          .then((res) => {
+            setProviders(res);
+
+            getAllProducts()
+              .then((res) => {
+                setProducts(res);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
+
+  const firebaseConfig = {
+    // ...
+    storageBucket: "gs://lifeeremit-e7281.appspot.com/",
+  };
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+
+  const handleChange = (e: any) => {
+    if (e.target.files.length) {
+      setPdf({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  const triggerFileInput = () => {
+    const hold = document?.getElementById("upload-button");
+    hold?.click();
+  };
 
   type CustomToggleProps = {
     children: React.ReactNode;
@@ -81,31 +137,96 @@ export const Transactions: React.FC<Props> = () => {
     )
   );
 
+  const fetchOrdersByProviders = (id: string) => {
+    getOrdersByProvider(id)
+      .then((res) => {
+        setOrders(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const fetchOrdersByProducts = (id: string) => {
+    getOrdersByProduct(id)
+      .then((res) => {
+        setOrders(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const fetchOrdersByStatus = (status: string) => {
+    getOrdersByStatus(status)
+      .then((res) => {
+        setOrders(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const statusMenu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu right-dropdown">
-      <Dropdown.Item eventKey="1">Paid</Dropdown.Item>
-      <Dropdown.Item eventKey="2">Awaiting key</Dropdown.Item>
-      <Dropdown.Item eventKey="3">Temp key</Dropdown.Item>
-      <Dropdown.Item eventKey="4">Licensed</Dropdown.Item>
+      <Dropdown.Item
+        eventKey="1"
+        onClick={() => fetchOrdersByStatus("new_order")}
+      >
+        New Order
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="2"
+        onClick={() => fetchOrdersByStatus("payment_successful")}
+      >
+        Paid
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="3"
+        onClick={() => fetchOrdersByStatus("awaiting_key")}
+      >
+        Awaiting key
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="4"
+        onClick={() => fetchOrdersByStatus("temp_key")}
+      >
+        Temp key
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="5"
+        onClick={() => fetchOrdersByStatus("licensed")}
+      >
+        Licensed
+      </Dropdown.Item>
     </Dropdown.Menu>
   );
 
   const providerMenu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu right-dropdown">
-      <Dropdown.Item eventKey="1">Sage</Dropdown.Item>
-      <Dropdown.Item eventKey="2">Oracle</Dropdown.Item>
-      <Dropdown.Item eventKey="3">SAP</Dropdown.Item>
-      <Dropdown.Item eventKey="4">Microsoft</Dropdown.Item>
+      {providers.length > 0 &&
+        providers.map((provider: any, index: any) => (
+          <Dropdown.Item
+            eventKey={index}
+            onClick={() => fetchOrdersByProviders(provider._id)}
+          >
+            {provider.name}
+          </Dropdown.Item>
+        ))}
     </Dropdown.Menu>
   );
 
   const productMenu = (
     <Dropdown.Menu className="fs-6 border-0 drop-down-menu right-dropdown">
-      <Dropdown.Item eventKey="1">Sage Business Cloud</Dropdown.Item>
-      <Dropdown.Item eventKey="2">Data and Analytics</Dropdown.Item>
-      <Dropdown.Item eventKey="3">Sage X3</Dropdown.Item>
-      <Dropdown.Item eventKey="4">Sage 200 Evolution</Dropdown.Item>
-      <Dropdown.Item eventKey="4">Sage 300 Cloud</Dropdown.Item>
+      {products.length > 0 &&
+        products.map((product: any, index: any) => (
+          <Dropdown.Item
+            eventKey={index}
+            onClick={() => fetchOrdersByProducts(product._id)}
+          >
+            {product.name}
+          </Dropdown.Item>
+        ))}
     </Dropdown.Menu>
   );
 
@@ -190,10 +311,16 @@ export const Transactions: React.FC<Props> = () => {
 
   const handleLicenseSubmit = async (e: any) => {
     e.preventDefault();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const storageRef = ref(storage, randomString);
+    const uploadTask = uploadBytesResumable(storageRef, pdf.raw);
+    await uploadTask;
+    const pdfUrl = await getDownloadURL(uploadTask.snapshot.ref);
     const response = await updateOrder(selectedOrder._id, {
       license_key: licenseKey,
       license_key_exp_date: licenseKeyExp,
       status: "licensed",
+      admin_invoice: pdfUrl,
     });
     if (response.status === 200) {
       toast.success(response.data.data);
@@ -385,12 +512,6 @@ export const Transactions: React.FC<Props> = () => {
                                     View Receipt
                                   </Dropdown.Item>
                                   <Dropdown.Item
-                                    eventKey="2"
-                                    onClick={() => contactOem(order)}
-                                  >
-                                    Contact OEM
-                                  </Dropdown.Item>
-                                  <Dropdown.Item
                                     eventKey="3"
                                     onClick={() => {
                                       setDetailsModal(true);
@@ -407,6 +528,21 @@ export const Transactions: React.FC<Props> = () => {
                                     }}
                                   >
                                     View Invoice
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="4"
+                                    // onClick={() => {
+                                    //   setInvoice(true);
+                                    //   setSelectedOrder(order);
+                                    // }}
+                                  >
+                                    Transaction Invoice
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="2"
+                                    onClick={() => contactOem(order)}
+                                  >
+                                    Contact OEM
                                   </Dropdown.Item>
                                   <Dropdown.Item
                                     eventKey="5"
@@ -629,7 +765,7 @@ export const Transactions: React.FC<Props> = () => {
               <Card.Body className="p-4">
                 <div className="d-flex align-items-center justify-content-between">
                   <b>Receipt</b>
-                  <svg
+                  {/* <svg
                     width="30"
                     height="30"
                     viewBox="0 0 30 30"
@@ -640,7 +776,7 @@ export const Transactions: React.FC<Props> = () => {
                       d="M26.25 16C25.9185 16 25.6005 16.1317 25.3661 16.3661C25.1317 16.6005 25 16.9185 25 17.25V22.25C25 22.5815 24.8683 22.8995 24.6339 23.1339C24.3995 23.3683 24.0815 23.5 23.75 23.5H6.25C5.91848 23.5 5.60054 23.3683 5.36612 23.1339C5.1317 22.8995 5 22.5815 5 22.25V17.25C5 16.9185 4.8683 16.6005 4.63388 16.3661C4.39946 16.1317 4.08152 16 3.75 16C3.41848 16 3.10054 16.1317 2.86612 16.3661C2.6317 16.6005 2.5 16.9185 2.5 17.25V22.25C2.5 23.2446 2.89509 24.1984 3.59835 24.9017C4.30161 25.6049 5.25544 26 6.25 26H23.75C24.7446 26 25.6984 25.6049 26.4017 24.9017C27.1049 24.1984 27.5 23.2446 27.5 22.25V17.25C27.5 16.9185 27.3683 16.6005 27.1339 16.3661C26.8995 16.1317 26.5815 16 26.25 16ZM14.1125 18.1375C14.2314 18.2513 14.3716 18.3405 14.525 18.4C14.6746 18.4661 14.8364 18.5003 15 18.5003C15.1636 18.5003 15.3254 18.4661 15.475 18.4C15.6284 18.3405 15.7686 18.2513 15.8875 18.1375L20.8875 13.1375C21.1229 12.9021 21.2551 12.5829 21.2551 12.25C21.2551 11.9171 21.1229 11.5979 20.8875 11.3625C20.6521 11.1271 20.3329 10.9949 20 10.9949C19.6671 10.9949 19.3479 11.1271 19.1125 11.3625L16.25 14.2375V2.25C16.25 1.91848 16.1183 1.60054 15.8839 1.36612C15.6495 1.1317 15.3315 1 15 1C14.6685 1 14.3505 1.1317 14.1161 1.36612C13.8817 1.60054 13.75 1.91848 13.75 2.25V14.2375L10.8875 11.3625C10.771 11.246 10.6326 11.1535 10.4803 11.0904C10.328 11.0273 10.1648 10.9949 10 10.9949C9.83518 10.9949 9.67197 11.0273 9.51969 11.0904C9.36741 11.1535 9.22905 11.246 9.1125 11.3625C8.99595 11.479 8.9035 11.6174 8.84043 11.7697C8.77735 11.922 8.74489 12.0852 8.74489 12.25C8.74489 12.4148 8.77735 12.578 8.84043 12.7303C8.9035 12.8826 8.99595 13.021 9.1125 13.1375L14.1125 18.1375Z"
                       fill="black"
                     />
-                  </svg>
+                  </svg> */}
                 </div>
 
                 <div className="dotted my-3"></div>
@@ -742,7 +878,7 @@ export const Transactions: React.FC<Props> = () => {
                     <span className="text-muted">Service Charge</span>
                   </Col>
                   <Col xs={7}>
-                    <b>$10</b>
+                    <b>${selectedOrder.service_charge || ""}</b>
                   </Col>
                 </Row>
                 <Row className="mt-2">
@@ -750,7 +886,18 @@ export const Transactions: React.FC<Props> = () => {
                     <span className="text-muted">Interest Change</span>
                   </Col>
                   <Col xs={7}>
-                    <b>%1 = 2 USD</b>
+                    <b>
+                      %{selectedOrder.product_interest} = 1{" "}
+                      {selectedOrder.country.countryCode}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Dollar rate</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>1 USD = {selectedOrder.dollar_rate} NGN</b>
                   </Col>
                 </Row>
                 <Row className="mt-2">
@@ -883,6 +1030,7 @@ export const Transactions: React.FC<Props> = () => {
                       borderRadius: "10px",
                       placeContent: "center",
                     }}
+                    onClick={triggerFileInput}
                   >
                     <svg
                       width="16"
@@ -899,6 +1047,23 @@ export const Transactions: React.FC<Props> = () => {
                   </div>
                   Attach Invoice
                 </div>
+                {pdf.preview && (
+                  <embed
+                    src={pdf.preview}
+                    type="application/pdf"
+                    height="100%"
+                    width="100%"
+                    onClick={triggerFileInput}
+                    className="mt-3"
+                  ></embed>
+                )}
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".pdf"
+                  onChange={handleChange}
+                />
                 <div className="text-right mt-5">
                   <button
                     className="btn btn_theme btn_theme2 w-50"
