@@ -13,6 +13,15 @@ export const getProducts = async (provider: string | undefined) => {
   return response.data.data;
 };
 
+export const getAllProducts = async () => {
+  const response = await Api.get(`/products?is_active=true`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response.data.data;
+};
+
 export const createProduct = async (
   name: string,
   provider: string | undefined

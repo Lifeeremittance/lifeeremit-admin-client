@@ -108,14 +108,14 @@ export const Currencies: React.FC<Props> = () => {
         className="text-theme"
         // onClick={() => setShow2(true)}
       >
-        Edit Product
+        Edit Country
       </Dropdown.Item>
       <Dropdown.Item
         eventKey="3"
         className="text-danger"
         // onClick={() => setShow3(true)}
       >
-        Delete Product
+        Delete Country 
       </Dropdown.Item>
     </Dropdown.Menu>
   );
