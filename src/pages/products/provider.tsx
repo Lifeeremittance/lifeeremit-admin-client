@@ -26,6 +26,8 @@ export const Provider: React.FC<Props> = () => {
   const [country, setCountry] = useState<any>({});
   const [values, setValues] = useState<any>([]);
 
+  const [reRender, setReRender] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     getProviderById(id)
       .then((provider) => {
@@ -58,7 +60,7 @@ export const Provider: React.FC<Props> = () => {
       .catch((error) => {
         console.log(error);
       });
-  }, [id]);
+  }, [id, reRender]);
 
   const handleRateChange = (e: any, currency: string, country: string) => {
     e.preventDefault();
@@ -91,20 +93,23 @@ export const Provider: React.FC<Props> = () => {
     e.preventDefault();
 
     const response = values.map((value: any) => {
-      editRate(value)
-        .then((res) => {
-          console.log(res);
-          return res;
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
+      if (value) {
+        editRate(value)
+          .then((res) => {
+            console.log(res);
+            return res;
+          })
+          .catch((error) => {
+            console.log(error);
+            return error;
+          });
+      }
     });
 
+    // generate a new reRender value to trigger useEffect
+    setReRender(Math.random().toString(36).substring(7));
     console.log(response);
     setShow(false);
-    window.location.reload();
   };
 
   return (
