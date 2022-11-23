@@ -35,11 +35,12 @@ type Props = {
 };
 
 export const Transactions: React.FC<Props> = () => {
-  const [detailsModal, setDetailsModal] = useState(false);
-  const [receiptModal, setReceiptModal] = useState(false);
-  const [tempKeyModal, setTempKeyModal] = useState(false);
-  const [licenseKeyModal, setLicenseKeyModal] = useState(false);
-  const [invoice, setInvoice] = useState(false);
+  const [detailsModal, setDetailsModal] = useState<boolean>(false);
+  const [receiptModal, setReceiptModal] = useState<boolean>(false);
+  const [tempKeyModal, setTempKeyModal] = useState<boolean>(false);
+  const [licenseKeyModal, setLicenseKeyModal] = useState<boolean>(false);
+  const [invoice, setInvoice] = useState<boolean>(false);
+  const [adminInvoice, setAdminInvoice] = useState<boolean>(false);
 
   const [tempKey, setTempKey] = useState("");
   const [licenseKey, setLicenseKey] = useState("");
@@ -531,10 +532,10 @@ export const Transactions: React.FC<Props> = () => {
                                   </Dropdown.Item>
                                   <Dropdown.Item
                                     eventKey="4"
-                                    // onClick={() => {
-                                    //   setInvoice(true);
-                                    //   setSelectedOrder(order);
-                                    // }}
+                                    onClick={() => {
+                                      setAdminInvoice(true);
+                                      setSelectedOrder(order);
+                                    }}
                                   >
                                     Transaction Invoice
                                   </Dropdown.Item>
@@ -1089,6 +1090,29 @@ export const Transactions: React.FC<Props> = () => {
                 <embed
                   src={
                     selectedOrder.invoice + "#toolbar=0&navpanes=0&scrollbar=0"
+                  }
+                  type="application/pdf"
+                  height="100%"
+                  width="100%"
+                ></embed>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={adminInvoice}
+            onHide={() => setAdminInvoice(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="invoice-modal border-0"
+          >
+            <Card className="invoice_modal_card p-3 vh-100">
+              <Card.Body>
+                <embed
+                  src={
+                    selectedOrder.admin_invoice +
+                    "#toolbar=0&navpanes=0&scrollbar=0"
                   }
                   type="application/pdf"
                   height="100%"
