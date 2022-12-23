@@ -11,13 +11,7 @@ import {
   Card,
 } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { initializeApp } from "firebase/app";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Header from "../../components/header";
 import Sidebar from "../../components/sidebar";
 import {
@@ -29,6 +23,7 @@ import {
 } from "../../services/order";
 import { getProviders } from "../../services/providers";
 import { getAllProducts } from "../../services/products";
+import { storage } from "../../services/firebase";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -81,13 +76,6 @@ export const Transactions: React.FC<Props> = () => {
         console.log(err);
       });
   }, []);
-
-  const firebaseConfig = {
-    // ...
-    storageBucket: "gs://lifeeremit-e7281.appspot.com/",
-  };
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
 
   const handleChange = (e: any) => {
     if (e.target.files.length) {

@@ -9,9 +9,7 @@ import {
   Form,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { initializeApp } from "firebase/app";
 import {
-  getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
@@ -21,6 +19,7 @@ import {
   getProviders,
   updateProvider,
 } from "../../services/providers";
+import { storage } from "../../services/firebase";
 import { toast } from "react-toastify";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
@@ -60,13 +59,6 @@ export const Providers: React.FC<Props> = () => {
   }, []);
 
   const navigate = useNavigate();
-
-  const firebaseConfig = {
-    // ...
-    storageBucket: "gs://lifeeremit-e7281.appspot.com",
-  };
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
 
   type CustomToggleProps = {
     children: React.ReactNode;

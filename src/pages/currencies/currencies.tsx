@@ -9,17 +9,12 @@ import {
   InputGroup,
   Dropdown,
 } from "react-bootstrap";
-import { initializeApp } from "firebase/app";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
 import { createCurrency, getCurrencies } from "../../services/currency";
 import { createCountry, getCountries } from "../../services/country";
 import { editCharge, getCharges } from "../../services/charges";
+import { storage } from "../../services/firebase";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
 
@@ -115,17 +110,10 @@ export const Currencies: React.FC<Props> = () => {
         className="text-danger"
         // onClick={() => setShow3(true)}
       >
-        Delete Country 
+        Delete Country
       </Dropdown.Item>
     </Dropdown.Menu>
   );
-
-  const firebaseConfig = {
-    // ...
-    storageBucket: "gs://lifeeremit-e7281.appspot.com",
-  };
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
 
   const handleChange = (e: any) => {
     if (e.target.files.length) {
