@@ -81,7 +81,7 @@ export const Landing: React.FC<Props> = () => {
 
       <div className="vh-15 d-flex align-items-center px-5">
         <Col md={4}>
-          <b className="fs-4">Paymit</b>
+          <b className="fs-4">Lifee Remit</b>
         </Col>
         <Col
           md={4}
@@ -271,8 +271,11 @@ export const Landing: React.FC<Props> = () => {
         </svg>
         <div className="text-center w-70">
           <div className="landing-text mb-2">
-            Pay for your <span className="text-theme">software</span> and
-            licenses <span className="text-theme">internationally</span>
+            {/* Pay for your  and
+            licenses <span className="text-theme">internationally</span> */}
+            Stress free software License{" "}
+            <span className="text-theme">Payments</span> and{" "}
+            <span className="text-theme">Renewals </span>
           </div>
           <svg
             width="170"
@@ -357,11 +360,13 @@ export const Landing: React.FC<Props> = () => {
             md={6}
             className="d-flex align-items-center justify-content-center flex-column"
           >
-            <div className="side-text mb-3">Fast and Safe Transaction</div>
+            <div className="side-text mb-3">Pay in Local Currency</div>
             <div>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              et facilisis tellus. Sed vel malesuada quam. Nam sodales eget
-              justo consectetur posuere.
+              Paying for invoiced software in a foreign currency can be a
+              hassle, as you have to worry about exchange rates and
+              international fees. Lifee Remit eliminates this problem by
+              allowing you to pay in your local currency. This makes the payment
+              process much simpler and more straightforward.
             </div>
             <div className="d-flex justify-content-start w-100 position-relative">
               <button className="btn btn_theme w-auto px-5 mt-5">
@@ -809,38 +814,28 @@ export const Landing: React.FC<Props> = () => {
         <div className="d-flex align-items-center x-scroll mb-5">
           <img src={manImage} alt="man" className="testimonial_img"></img>
           <div className="mx-5">
-            <b className="fs-4 mb-3">James Babajide</b>
+            <b className="fs-4 mb-3">Kola</b>
             <p style={{ width: "300px" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              et facilisis tellus. Sed vel malesuada quam. Nam sodales eget
-              justo
+              It was easier than I thought, I made payment in Naira and that was
+              it, couple minutes later my Sage Business Cloud account was
+              active.
             </p>
           </div>
           <img src={womanImage} alt="woman" className="testimonial_img"></img>
           <div className="mx-5">
-            <b className="fs-4 mb-3">James Babajide</b>
+            <b className="fs-4 mb-3">Aisha</b>
             <p style={{ width: "300px" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              et facilisis tellus. Sed vel malesuada quam. Nam sodales eget
-              justo
+              I didn't need to call anyone or beg for my license key. I made
+              payment and was kept up to date on the status of my license key
+              from the OEM.
             </p>
           </div>
-          <img src={manImage} alt="man" className="testimonial_img"></img>
+          <img src={manImage} alt="woman" className="testimonial_img"></img>
           <div className="mx-5">
             <b className="fs-4 mb-3">James Babajide</b>
             <p style={{ width: "300px" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              et facilisis tellus. Sed vel malesuada quam. Nam sodales eget
-              justo
-            </p>
-          </div>
-          <img src={womanImage} alt="woman" className="testimonial_img"></img>
-          <div className="mx-5">
-            <b className="fs-4 mb-3">James Babajide</b>
-            <p style={{ width: "300px" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              et facilisis tellus. Sed vel malesuada quam. Nam sodales eget
-              justo
+              The charges are lower than the bank and the exchange rate is also
+              good, compared to black market.
             </p>
           </div>
         </div>
@@ -857,19 +852,17 @@ export const Landing: React.FC<Props> = () => {
               className="border-0 w-100 body-bg"
             >
               <div className="d-flex align-items-center justify-content-between w-100 py-3">
-                <b className="text-black">
-                  What is Paymit and how does it work?
-                </b>
+                <b className="text-black">What is Lifee Remit?</b>
 
                 <i className="fa fa-angle-down text-theme fs-1"></i>
               </div>
             </button>
             <Collapse in={open} className="mb-3">
               <div id="example-collapse-text">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life
-                accusamus terry richardson ad squid. Nihil anim keffiyeh
-                helvetica, craft beer labore wes anderson cred nesciunt sapiente
-                ea proident.
+                As a digital distribution service, Lifee Remit makes it easy to
+                pay for and renew software licences in your local currency. We
+                accept Naira as payment for invoices issued in any foreign
+                currency.
               </div>
             </Collapse>
           </div>
@@ -881,19 +874,19 @@ export const Landing: React.FC<Props> = () => {
               className="border-0 w-100 body-bg"
             >
               <div className="d-flex align-items-center justify-content-between w-100 py-3">
-                <b className="text-black">
-                  Do i need an account to purchase a product key?
-                </b>
+                <b className="text-black">How does it work?</b>
 
                 <i className="fa fa-angle-down text-theme fs-1"></i>
               </div>
             </button>
             <Collapse in={open2} className="mb-3">
               <div id="example-collapse-text">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life
-                accusamus terry richardson ad squid. Nihil anim keffiyeh
-                helvetica, craft beer labore wes anderson cred nesciunt sapiente
-                ea proident.
+                It only takes a few easy steps. Choose the currency of your
+                service provider's invoice, then choose OEM or service
+                provider's product, fill out your information, and get the
+                amount in Naira. Then you can pay. We will handle the rest and
+                keep you updated at each stage until you receive your license or
+                your account is activated.
               </div>
             </Collapse>
           </div>
@@ -905,19 +898,16 @@ export const Landing: React.FC<Props> = () => {
               className="border-0 w-100 body-bg"
             >
               <div className="d-flex align-items-center justify-content-between w-100 py-3">
-                <b className="text-black">
-                  How long does it take to complete a transaction?
-                </b>
+                <b className="text-black">What do I need to provide?</b>
 
                 <i className="fa fa-angle-down text-theme fs-1"></i>
               </div>
             </button>
             <Collapse in={open3} className="mb-3">
               <div id="example-collapse-text">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life
-                accusamus terry richardson ad squid. Nihil anim keffiyeh
-                helvetica, craft beer labore wes anderson cred nesciunt sapiente
-                ea proident.
+                All you need is the Invoice, invoice number or unique identifier
+                for your product or account. You can get this from your software
+                or your service provider
               </div>
             </Collapse>
           </div>
@@ -929,19 +919,18 @@ export const Landing: React.FC<Props> = () => {
               className="border-0 w-100 body-bg"
             >
               <div className="d-flex align-items-center justify-content-between w-100 py-3">
-                <b className="text-black">
-                  What is the transaction limit on Paymit?
-                </b>
+                <b className="text-black">What is the transaction limit?</b>
 
                 <i className="fa fa-angle-down text-theme fs-1"></i>
               </div>
             </button>
             <Collapse in={open4} className="mb-3">
               <div id="example-collapse-text">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life
-                accusamus terry richardson ad squid. Nihil anim keffiyeh
-                helvetica, craft beer labore wes anderson cred nesciunt sapiente
-                ea proident.
+                At this time, we are only able to process a maximum of $5,000
+                per invoice transaction. Depending on the exchange rate that has
+                been approved by the OEM or service provider, a Naira equivalent
+                will be provided for your payment when you are ready to check
+                out.
               </div>
             </Collapse>
           </div>
