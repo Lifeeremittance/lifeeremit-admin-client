@@ -6,13 +6,14 @@ import { Customers, CustomerProfile } from "../pages/customers";
 import { Providers, Provider, Products } from "../pages/products";
 import { Currencies } from "../pages/currencies";
 import { Landing } from "../pages/landing";
+import { About } from "../pages/about";
 
 import "./../App.css";
 
 const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<Landing/>} />
+      <Route path="/" element={<Landing />} />
       <Route path="/signin" element={<Signin />} />
       <Route path="/verify" element={<Verify />} />
       <Route path="/overview" element={<Overview />} />
@@ -23,6 +24,7 @@ const AppRouter = () => {
       <Route path="/products/:id" element={<Provider />} />
       <Route path="/products/list/:id/:name" element={<Products />} />
       <Route path="/currencies" element={<Currencies />} />
+      <Route path="/about" element={<About />} />
     </Routes>
   );
 };

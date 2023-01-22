@@ -25,14 +25,14 @@
   width: 394px;
   height: 54px;
   color: #fff;
-  background: #6246ea;
+  background: #9b62cd;
   border-radius: 30px;
   border: none;
   font-weight: bold;
 }
 
 .btn_theme2 {
-  background: linear-gradient(180deg, #6246ea 0%, rgba(98, 70, 234, 0) 253.64%);
+  background: linear-gradient(180deg, #9b62cd 0%, rgba(98, 70, 234, 0) 253.64%);
 }
 
 .link_theme {
@@ -70,7 +70,7 @@
 }
 
 .active {
-  color: #6246ea !important;
+  color: #9b62cd !important;
 }
 
 .vh-15 {
@@ -93,7 +93,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: #6246ea;
+  background-color: #9b62cd;
 }
 
 .text-red {
@@ -107,7 +107,7 @@
 }
 
 .progress-bar {
-  background: #6246ea;
+  background: #9b62cd;
   border-radius: var(--bs-progress-border-radius);
 }
 
@@ -165,7 +165,7 @@
 }
 
 .selected {
-  border: 4px solid #6246ea;
+  border: 4px solid #9b62cd;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
 }
 
@@ -181,10 +181,10 @@
 }
 
 .selected_radio {
-  border: 2px solid #6246ea;
+  border: 2px solid #9b62cd;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
   border-radius: 20px;
-  color: #6246ea;
+  color: #9b62cd;
 }
 
 /* product details */
@@ -206,7 +206,7 @@
 }
 
 .text-theme {
-  color: #6246ea;
+  color: #9b62cd;
 }
 
 /* transaction history */
@@ -240,7 +240,7 @@
 }
 
 .bg-theme {
-  background: #6246ea;
+  background: #9b62cd;
 }
 
 .dotted {
@@ -251,7 +251,7 @@
 .media-upload {
   width: 99px;
   height: 99px;
-  background: #6246ea;
+  background: #9b62cd;
   border-radius: 50%;
 }
 
@@ -275,13 +275,13 @@
 
 .btn:hover,
 .btn:focus {
-  background: #6246ea;
+  background: #9b62cd;
   color: #fff;
 }
 
 .btn_theme2:hover,
 .btn_theme2:focus {
-  background: linear-gradient(180deg, #6246ea 0%, rgba(98, 70, 234, 0) 253.64%);
+  background: linear-gradient(180deg, #9b62cd 0%, rgba(98, 70, 234, 0) 253.64%);
 }
 
 /* admin */
@@ -503,7 +503,7 @@ td {
 
 .selected_nav {
   opacity: 1;
-  border-bottom: 3px solid #6246ea;
+  border-bottom: 3px solid #9b62cd;
 }
 
 .special-height {
@@ -512,4 +512,48 @@ td {
 
 .special-height2 {
   height: calc(90vh - 9rem - 35px);
+}
+
+.newsletter {
+  background-image: url("./assets/img/jigsaw.png");
+  opacity: 0.4;
+  transform: matrix(-1, 0, 0, 1, 0, 0);
+  background-size: cover;
+  height: 100%;
+}
+
+.icon-container {
+  width: 85px;
+  height: 71px;
+  background-color: rgb(98, 70, 234, 0.1);
+  border-radius: 5px;
+}
+
+.bg-theme2 {
+  background-color: rgb(98, 70, 234, 0.1);
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+/* screens less that 767px */ 
+@media screen and (max-width: 767px) {
+  .landing-text, .faq-text {
+    font-size: 36px;
+    line-height: 42px;
+  }
+  .w-md-90 {
+    width: 90% !important;
+  }
+  .side-text {
+    font-size: 45px;
+    line-height: 42px;
+  }
+  .w-md-100 {
+    width: 100%;
+  }
+  .f-md-28 {
+    font-size: 28px !important;
+  }
 }

@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { Row, Col, Collapse } from "react-bootstrap";
+import { Row, Col, Collapse, InputGroup, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import manImage from "../../assets/img/man.png";
-import womanImage from "../../assets/img/woman.png";
+// import manImage from "../../assets/img/man.png";
+// import womanImage from "../../assets/img/woman.png";
+import logoImage from "../../assets/img/logo.png";
+import phoneImage from "../../assets/img/phone.png";
+import locationImage from "../../assets/img/location.png";
+import emailImage from "../../assets/img/email.png";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -18,37 +22,6 @@ export const Landing: React.FC<Props> = () => {
 
   return (
     <div className="vw-100 vh-100 body-bg y-scroll px-0 position-relative">
-      <svg
-        width="452"
-        height="586"
-        viewBox="0 0 452 586"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="blob-1"
-        style={{ zIndex: -1 }}
-      >
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M736.48 -29.0636C881.093 93.7752 742.438 354.838 584.809 540.409C496.454 644.425 389.409 543.81 308.35 474.956C169.487 357.002 -106.654 259.823 44.7079 81.6307C244.585 -153.676 553.107 -184.826 736.48 -29.0636Z"
-          fill="url(#paint0_linear_20_54)"
-          fill-opacity="0.6"
-        />
-        <defs>
-          <linearGradient
-            id="paint0_linear_20_54"
-            x1="659.313"
-            y1="-94.611"
-            x2="173.904"
-            y2="624.816"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stop-color="#D1D1E9" />
-            <stop offset="1" stop-color="#D1D1E9" />
-          </linearGradient>
-        </defs>
-      </svg>
-
       <svg
         width="308"
         height="589"
@@ -79,21 +52,28 @@ export const Landing: React.FC<Props> = () => {
         </defs>
       </svg>
 
-      <div className="vh-15 d-flex align-items-center px-5">
+      <div className="vh-10 d-none d-md-flex align-items-center px-5">
         <Col md={4}>
-          <b className="fs-4">Lifee Remit</b>
+          {/* <b className="fs-4">Lifee Remit</b> */}
+          <img src={logoImage} alt="logo" className="logo img-fluid" />
         </Col>
         <Col
           md={4}
           className="justify-content-evenly align-items-center d-flex"
         >
-          <p className="m-0 text-theme">Home</p>
-          <p className="m-0 text-muted">About</p>
-          <p className="m-0 text-muted">Contact</p>
+          <a className="m-0 text-theme no-underline" href="/">
+            Home
+          </a>
+          <a className="m-0 text-muted no-underline" href="/about">
+            About
+          </a>
+          <a className="m-0 text-muted no-underline" href="#contact">
+            Contact
+          </a>
         </Col>
         <Col md={4} className="text-right">
           <button
-            className="btn btn_theme w-50"
+            className="btn btn_theme w-auto px-4"
             onClick={() => navigate("/signin")}
           >
             Log In
@@ -101,14 +81,21 @@ export const Landing: React.FC<Props> = () => {
         </Col>
       </div>
 
-      <div className="d-flex align-items-center justify-content-center h-75 position-relative">
+      <div className="vh-10 d-flex d-md-none align-items-center justify-content-between px-3">
+        <Col md={6}>
+          {/* <b className="fs-4">Lifee Remit</b> */}
+          <img src={logoImage} alt="logo" className="logo img-fluid" />
+        </Col>
+      </div>
+
+      <div className="d-flex align-items-center justify-content-center h-50 position-relative mt-4">
         <svg
           width="295"
           height="322"
           viewBox="0 0 295 322"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="absolute-rocket"
+          className="absolute-rocket d-none d-md-block"
         >
           <path
             d="M147.12 37.8313L146.42 37.2812C149.57 33.2812 152.88 29.5213 156.26 26.0013L156.89 26.6213C153.53 30.1113 150.24 33.8913 147.12 37.8313Z"
@@ -269,7 +256,7 @@ export const Landing: React.FC<Props> = () => {
             fill="white"
           />
         </svg>
-        <div className="text-center w-70">
+        <div className="text-center w-70 w-md-90">
           <div className="landing-text mb-2">
             {/* Pay for your  and
             licenses <span className="text-theme">internationally</span> */}
@@ -293,7 +280,7 @@ export const Landing: React.FC<Props> = () => {
           </svg>
 
           <div className="d-flex align-items-center justify-content-center mt-5">
-            <p style={{ lineHeight: "32px" }} className="w-70">
+            <p style={{ lineHeight: "32px" }} className="w-70 w-md-90">
               Paymit is a portal that allows small scale business in Nigeria and
               other African countries to make payments in their local currency
               for various OEMs license and license keys.{" "}
@@ -354,7 +341,7 @@ export const Landing: React.FC<Props> = () => {
         </Row>
       </div>
 
-      <div className="px-5 mb-5">
+      <div className="px-3 px-md-5 my-5">
         <Row className="px-0 m-0">
           <Col
             md={6}
@@ -812,7 +799,11 @@ export const Landing: React.FC<Props> = () => {
         </div>
 
         <div className="d-flex align-items-center x-scroll mb-5">
-          <img src={manImage} alt="man" className="testimonial_img"></img>
+          <img
+            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+            alt="man"
+            className="testimonial_img rounded"
+          ></img>
           <div className="mx-5">
             <b className="fs-4 mb-3">Kola</b>
             <p style={{ width: "300px" }}>
@@ -821,7 +812,11 @@ export const Landing: React.FC<Props> = () => {
               active.
             </p>
           </div>
-          <img src={womanImage} alt="woman" className="testimonial_img"></img>
+          <img
+            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+            alt="woman"
+            className="testimonial_img rounded"
+          ></img>
           <div className="mx-5">
             <b className="fs-4 mb-3">Aisha</b>
             <p style={{ width: "300px" }}>
@@ -830,7 +825,11 @@ export const Landing: React.FC<Props> = () => {
               from the OEM.
             </p>
           </div>
-          <img src={manImage} alt="woman" className="testimonial_img"></img>
+          <img
+            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+            alt="woman"
+            className="testimonial_img rounded"
+          ></img>
           <div className="mx-5">
             <b className="fs-4 mb-3">James Babajide</b>
             <p style={{ width: "300px" }}>
@@ -841,8 +840,8 @@ export const Landing: React.FC<Props> = () => {
         </div>
       </div>
 
-      <div className="m-5 d-flex align-items-center justify-content-center flex-column">
-        <div className="w-75">
+      <div className="mx-2 my-5 d-flex align-items-center justify-content-center flex-column">
+        <div className="w-75 w-md-90">
           <div className="faq-text">Frequently asked questions</div>
           <div className="border-bottom">
             <button
@@ -937,8 +936,162 @@ export const Landing: React.FC<Props> = () => {
         </div>
       </div>
 
-      <div className="bg-black text-white p-5">
-        <Row className="mb-5">
+      <div style={{ height: "220px", backgroundColor: "#353535" }}>
+        <Row className="h-100 position-relative">
+          <div className="position-absolute w-100 text-white h-100">
+            <div className="d-block d-md-flex align-items-center justify-content-between flex-row h-100 w-100 p-4">
+              <div>
+                <h2 className="w-100">Sign up to our newsletter</h2>
+                <div style={{ opacity: 0.6 }} className="mb-3">
+                  Sign up and get latest updates from Lifee Remit in your
+                  mailbox
+                </div>
+              </div>
+
+              <div style={{ zIndex: 9 }}>
+                <InputGroup>
+                  <Form.Control
+                    type="text"
+                    className="form_inputs"
+                    placeholder="Enter your email"
+                    style={{
+                      borderRadius: "10px 0px 0px 10px",
+                      // minWidth: "200px",
+                    }}
+                    // onChange={(e) => setLicenseKey(e.target.value)}
+                  />
+                  <div
+                    className="d-flex align-items-center px-4"
+                    style={{
+                      borderRadius: "0px 10px 10px 0px",
+                      backgroundColor: "#9b62cd",
+                    }}
+                  >
+                    Sign Up
+                  </div>
+                </InputGroup>
+              </div>
+            </div>
+          </div>
+          <Col xs={4} className="newsletter"></Col>
+          <Col xs={4} className="newsletter"></Col>
+          <Col xs={4} className="newsletter"></Col>
+        </Row>
+      </div>
+
+      <div className="py-5 px-4 px-md-5" id="contact">
+        <Row>
+          <Col md={6}>
+            <h5
+              className="text-theme mb-3"
+              style={{ letterSpacing: "0.415em" }}
+            >
+              CONTACT US
+            </h5>
+            <h1
+              style={{ letterSpacing: "0.125em", fontSize: 60 }}
+              className="text-capitalize f-md-28"
+            >
+              Let's talk, Contact us now
+            </h1>
+            <h5 className="my-4">Fill out the form or use the details below</h5>
+
+            <div className="d-flex align-items-center mb-3">
+              <div className="icon-container d-flex align-items-center justify-content-center me-3">
+                <img src={emailImage} alt="email" width={40} height={40} />
+              </div>
+
+              <div>
+                <h6 className="fw-bold">Email</h6>
+                <span>info@lifeeremit.com</span>
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center mb-3">
+              <div className="icon-container d-flex align-items-center justify-content-center me-3">
+                <img src={locationImage} alt="email" width={40} height={40} />
+              </div>
+
+              <div>
+                <h6 className="fw-bold">Address</h6>
+                <span>Lagos, Nigeria</span>
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center mb-3">
+              <div className="icon-container d-flex align-items-center justify-content-center me-3">
+                <img src={phoneImage} alt="email" width={40} height={40} />
+              </div>
+
+              <div>
+                <h6 className="fw-bold">Phone</h6>
+                <span>info@lifeeremit.com</span>
+              </div>
+            </div>
+          </Col>
+
+          <Col md={6}>
+            <div
+              className="bg-theme2 h-100 p-4 p-md-5 mt-3"
+              style={{
+                borderRadius: "10px",
+              }}
+            >
+              <h2>Write your message</h2>
+
+              <Form.Control
+                type="text"
+                className="form_inputs border-0 mt-5 w-100"
+                placeholder="Name"
+                style={{
+                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
+                  borderRadius: "10px",
+                }}
+                // onChange={(e) => setLicenseKey(e.target.value)}
+              />
+
+              <Form.Control
+                type="text"
+                className="form_inputs border-0 mt-4 w-100"
+                placeholder="Email"
+                style={{
+                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
+                  borderRadius: "10px",
+                }}
+                // onChange={(e) => setLicenseKey(e.target.value)}
+              />
+
+              <Form.Control
+                type="text"
+                className="form_inputs border-0 mt-4 w-100"
+                placeholder="Phone Number"
+                style={{
+                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
+                  borderRadius: "10px",
+                }}
+                // onChange={(e) => setLicenseKey(e.target.value)}
+              />
+
+              <Form.Control
+                as="textarea"
+                rows={5}
+                className="form_inputs border-0 mt-4 w-100 h-auto"
+                placeholder="Write your message here"
+                style={{
+                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
+                  borderRadius: "10px",
+                }}
+                // onChange={(e) => setLicenseKey(e.target.value)}
+              />
+
+              <button className="btn btn_theme mt-4 w-auto px-5">Submit</button>
+            </div>
+          </Col>
+        </Row>
+      </div>
+
+      <div className="bg-black text-white p-4 p-md-5">
+        <Row className="mb-5 d-none d-md-flex">
           <Col md={5}>
             <div className="d-flex align-items-left justify-content-between flex-column h-100">
               <b>&copy; Paymit</b>
@@ -997,6 +1150,62 @@ export const Landing: React.FC<Props> = () => {
             </Row>
           </Col>
         </Row>
+
+        <div className="d-md-none mb-5">
+          <b>&copy; Paymit</b>
+          <Row className="my-4">
+            <Col xs={4}>
+              <b>About</b>
+            </Col>
+            <Col xs={4}>
+              <b>Help</b>
+            </Col>
+            <Col xs={4}>
+              <b>Socials</b>
+            </Col>
+          </Row>
+          <Row className="mb-3">
+            <Col xs={4}>
+              <p className="faint-text text-small">Team</p>
+            </Col>
+            <Col xs={4}>
+              <p className="faint-text text-small">Contact us</p>
+            </Col>
+            <Col xs={4}>
+              <p className="faint-text text-small">Instagram</p>
+            </Col>
+          </Row>
+          <Row className="mb-3">
+            <Col xs={4}>
+              <p className="faint-text text-small">Our Story</p>
+            </Col>
+            <Col xs={4}>
+              <p className="faint-text text-small">FAQs</p>
+            </Col>
+            <Col xs={4}>
+              <p className="faint-text text-small">LinkedIn</p>
+            </Col>
+          </Row>
+          <Row className="mb-3">
+            <Col xs={4}>
+              <p className="faint-text text-small">Careers</p>
+            </Col>
+            <Col xs={4}></Col>
+            <Col xs={4}>
+              <p className="faint-text text-small">Twitter</p>
+            </Col>
+          </Row>
+          <Row className="mb-5">
+            <Col xs={4}></Col>
+            <Col xs={4}></Col>
+            <Col xs={4}>
+              <p className="faint-text text-small">Facebook</p>
+            </Col>
+          </Row>
+          <div className="text-center">
+            <b>Terms & Conditions</b>
+          </div>
+        </div>
       </div>
     </div>
   );
