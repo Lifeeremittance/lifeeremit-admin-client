@@ -5,6 +5,7 @@ import "react-phone-number-input/style.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { validateToken } from "../../services/auth";
+import logoImage from "../../assets/img/logo.png";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -97,12 +98,18 @@ export const Verify: React.FC<Props> = () => {
         </defs>
       </svg>
 
-      <b
+      {/* <b
         className="fs-3 paymit-logo cursor-pointer"
         onClick={() => navigate("/")}
       >
         Paymit
-      </b>
+      </b> */}
+      <img
+        src={logoImage}
+        alt="logo"
+        className="paymit-logo img-fluid cursor-pointer"
+        onClick={() => navigate("/")}
+      />
       <Form className="signup_form d-flex align-items-center flex-column bg-white p-4">
         <div className="text-center mb-4">
           <b className="fs-5">Enter Passcode</b>

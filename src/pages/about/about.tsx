@@ -1121,7 +1121,7 @@ export const About: React.FC<Props> = () => {
         <Row className="mb-5">
           <Col md={5}>
             <div className="d-flex align-items-left justify-content-between flex-column h-100">
-              <b>&copy; Paymit</b>
+              <b>&copy; Lifeeremit</b>
               <b>Terms & Conditions</b>
             </div>
           </Col>
