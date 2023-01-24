@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Cookies from "universal-cookie";
 import { Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
+import logoImage from "../assets/img/logo.png";
 
 const Sidebar = () => {
   const logout = () => {
@@ -25,7 +26,13 @@ const Sidebar = () => {
     <Col md={4} lg={3} className="p-0 vh-100">
       <div className="sidebar_menu bg-white text-center border shadow-sm d-flex justify-content-between flex-column">
         <div>
-          <h4 className="fw-bold pt-5">Paymit</h4>
+          {/* <h4 className="fw-bold pt-5">Paymit</h4> */}
+          <img
+            src={logoImage}
+            alt="logo"
+            className="paymit-logo img-fluid cursor-pointer position-relative"
+            // onClick={() => navigate("/")}
+          />
 
           <ul className="nav flex-column pt-4 px-3 justify-content-between side-specific-height text-left">
             {/* <li className="nav-item mb-4">
