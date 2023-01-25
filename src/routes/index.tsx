@@ -7,6 +7,7 @@ import { Providers, Provider, Products } from "../pages/products";
 import { Currencies } from "../pages/currencies";
 import { Landing } from "../pages/landing";
 import { About } from "../pages/about";
+import { Contact } from "../pages/contact";
 
 import "./../App.css";
 
@@ -25,6 +26,7 @@ const AppRouter = () => {
       <Route path="/products/list/:id/:name" element={<Products />} />
       <Route path="/currencies" element={<Currencies />} />
       <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
     </Routes>
   );
 };
