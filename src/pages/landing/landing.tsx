@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import { Row, Col, Collapse, InputGroup, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../../assets/img/logo.png";
-import phoneImage from "../../assets/img/phone.png";
-// import locationImage from "../../assets/img/location.png";
-import emailImage from "../../assets/img/email.png";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -63,15 +60,15 @@ export const Landing: React.FC<Props> = () => {
             Home
           </a>
           <a className="m-0 text-muted no-underline" href="/about">
-            About
+            About Us
           </a>
-          <a className="m-0 text-muted no-underline" href="#contact">
+          <a className="m-0 text-muted no-underline" href="/contact">
             Contact
           </a>
         </Col>
         <Col md={4} className="text-right">
           <button
-            className="btn btn_theme w-auto px-4"
+            className="btn btn_theme w-auto px-4 rounded"
             onClick={() => navigate("/signin")}
           >
             Log In
@@ -79,7 +76,7 @@ export const Landing: React.FC<Props> = () => {
         </Col>
       </div>
 
-      <div className="vh-10 d-flex d-md-none align-items-center justify-content-between px-3">
+      <div className="vh-10 d-flex d-md-none align-items-center justify-content-between px-3 mb-5">
         <Col md={6}>
           {/* <b className="fs-4">Lifee Remit</b> */}
           <img src={logoImage} alt="logo" className="logo img-fluid" />
@@ -256,8 +253,6 @@ export const Landing: React.FC<Props> = () => {
         </svg>
         <div className="text-center w-70 w-md-90">
           <div className="landing-text mb-2">
-            {/* Pay for your  and
-            licenses <span className="text-theme">internationally</span> */}
             Stress free software License{" "}
             <span className="text-theme">Payments</span> and{" "}
             <span className="text-theme">Renewals </span>
@@ -279,17 +274,19 @@ export const Landing: React.FC<Props> = () => {
 
           <div className="d-flex align-items-center justify-content-center mt-5">
             <p style={{ lineHeight: "32px" }} className="w-70 w-md-90">
-              Lifeeremit is a portal that allows small scale business in Nigeria
-              and other African countries to make payments in their local
-              currency for various OEMs license and license keys.{" "}
+              Small businesses in Africa are having difficulties paying for
+              invoiced software in foreign currencies due to central bank
+              policies and forex regulations. Lifee Remit is collaborated with
+              leading OEMs, software and SaaS providers to offer a convenient
+              alternative for license payment and renewals in local currencies.
             </p>
           </div>
-          <button className="btn btn_theme w-auto px-5 mt-2">Pay Now</button>
+          {/* <button className="btn btn_theme w-auto px-5 mt-2">Pay Now</button> */}
         </div>
       </div>
 
       <div className="text-center mt-10 px-5">
-        <h5 className="mb-2">Collaborators</h5>
+        <h5 className="mb-4">Collaborators</h5>
 
         <Row className="px-5">
           <Col
@@ -354,9 +351,9 @@ export const Landing: React.FC<Props> = () => {
               process much simpler and more straightforward.
             </div>
             <div className="d-flex justify-content-start w-100 position-relative">
-              <button className="btn btn_theme w-auto px-5 mt-5">
+              {/* <button className="btn btn_theme w-auto px-5 mt-5">
                 Pay Now
-              </button>
+              </button> */}
               <svg
                 width="167"
                 height="148"
@@ -838,7 +835,10 @@ export const Landing: React.FC<Props> = () => {
         </div>
       </div>
 
-      <div className="mx-2 my-5 d-flex align-items-center justify-content-center flex-column">
+      <div
+        className="mx-2 my-5 d-flex align-items-center justify-content-center flex-column"
+        id="faq"
+      >
         <div className="w-75 w-md-90">
           <div className="faq-text">Frequently asked questions</div>
           <div className="border-bottom">
@@ -977,127 +977,19 @@ export const Landing: React.FC<Props> = () => {
         </Row>
       </div>
 
-      <div className="py-5 px-4 px-md-5" id="contact">
-        <Row>
-          <Col md={6}>
-            <h5
-              className="text-theme mb-3"
-              style={{ letterSpacing: "0.415em" }}
-            >
-              CONTACT US
-            </h5>
-            <h1
-              style={{ letterSpacing: "0.125em", fontSize: 60 }}
-              className="text-capitalize f-md-28"
-            >
-              Let's talk, Contact us now
-            </h1>
-            <h5 className="my-4">Fill out the form or use the details below</h5>
-
-            <div className="d-flex align-items-center mb-3">
-              <div className="icon-container d-flex align-items-center justify-content-center me-3">
-                <img src={emailImage} alt="email" width={40} height={40} />
-              </div>
-
-              <div>
-                <h6 className="fw-bold">Email</h6>
-                <span>info@lifeeremit.com</span>
-              </div>
-            </div>
-
-            {/* <div className="d-flex align-items-center mb-3">
-              <div className="icon-container d-flex align-items-center justify-content-center me-3">
-                <img src={locationImage} alt="email" width={40} height={40} />
-              </div>
-
-              <div>
-                <h6 className="fw-bold">Address</h6>
-                <span>Lagos, Nigeria</span>
-              </div>
-            </div> */}
-
-            <div className="d-flex align-items-center mb-3">
-              <div className="icon-container d-flex align-items-center justify-content-center me-3">
-                <img src={phoneImage} alt="email" width={40} height={40} />
-              </div>
-
-              <div>
-                <h6 className="fw-bold">Phone</h6>
-                <span>+234 808 018 7158</span>
-              </div>
-            </div>
-          </Col>
-
-          <Col md={6}>
-            <div
-              className="bg-theme2 h-100 p-4 p-md-5 mt-3"
-              style={{
-                borderRadius: "10px",
-              }}
-            >
-              <h2>Write your message</h2>
-
-              <Form.Control
-                type="text"
-                className="form_inputs border-0 mt-5 w-100"
-                placeholder="Name"
-                style={{
-                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
-                  borderRadius: "10px",
-                }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
-              />
-
-              <Form.Control
-                type="email"
-                className="form_inputs border-0 mt-4 w-100"
-                placeholder="Email"
-                style={{
-                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
-                  borderRadius: "10px",
-                }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
-              />
-
-              <Form.Control
-                type="text"
-                className="form_inputs border-0 mt-4 w-100"
-                placeholder="Phone Number"
-                style={{
-                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
-                  borderRadius: "10px",
-                }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
-              />
-
-              <Form.Control
-                as="textarea"
-                rows={5}
-                className="form_inputs border-0 mt-4 w-100 h-auto"
-                placeholder="Write your message here"
-                style={{
-                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
-                  borderRadius: "10px",
-                }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
-              />
-
-              <input
-                type="submit"
-                className="btn btn_theme mt-4 w-auto px-5"
-                value="Submit"
-              />
-            </div>
-          </Col>
-        </Row>
-      </div>
-
       <div className="bg-black text-white p-4 p-md-5">
         <Row className="mb-5 d-none d-md-flex">
           <Col md={5}>
             <div className="d-flex align-items-left justify-content-between flex-column h-100">
               <b>&copy; Lifeeremit</b>
-              <b>Terms & Conditions</b>
+              <a
+                href="https://www.notion.so/Policies-05f03a421a0047658fb633ecbc5ec8cc"
+                className="fw-bold no-underline text-white"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Terms & Conditions
+              </a>
             </div>
           </Col>
           <Col md={7}>
@@ -1127,7 +1019,12 @@ export const Landing: React.FC<Props> = () => {
                 </p>
               </Col>
               <Col md={4}>
-                <p className="faint-text text-small">Contact us</p>
+                <p
+                  className="faint-text text-small"
+                  onClick={() => navigate("/contact")}
+                >
+                  Contact us
+                </p>
               </Col>
               <Col md={4}>
                 <p className="faint-text text-small">Twitter</p>
@@ -1135,27 +1032,58 @@ export const Landing: React.FC<Props> = () => {
             </Row>
             <Row className="mb-3">
               <Col md={4}>
-                <p className="faint-text text-small">Our Story</p>
+                <p
+                  className="faint-text text-small"
+                  onClick={() => navigate("/about")}
+                >
+                  Our Story
+                </p>
               </Col>
               <Col md={4}>
-                <p className="faint-text text-small">FAQs</p>
+                <a
+                  href="#faq"
+                  className="faint-text text-small no-underline text-white"
+                >
+                  FAQs
+                </a>
               </Col>
               <Col md={4}>
-                <p className="faint-text text-small">LinkedIn</p>
+                <a
+                  className="faint-text text-small no-underline text-white"
+                  href="https://www.linkedin.com/company/lifee-remit/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  LinkedIn
+                </a>
               </Col>
             </Row>
             <Row className="mb-3">
               <Col md={4}>
-                <p className="faint-text text-small">Careers</p>
+                <p
+                  className="faint-text text-small"
+                  onClick={() => navigate("/contact")}
+                >
+                  Careers
+                </p>
               </Col>
-              <Col md={4}></Col>
+              <Col md={4}>
+                <a
+                  className="faint-text text-small no-underline text-white"
+                  href="https://www.linkedin.com/company/lifee-remit/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Help
+                </a>
+              </Col>
               <Col md={4}></Col>
             </Row>
           </Col>
         </Row>
 
         <div className="d-md-none mb-5">
-          <b>&copy; Paymit</b>
+          <b>&copy; Lifeeremit</b>
           <Row className="my-4">
             <Col xs={4}>
               <b>About</b>
