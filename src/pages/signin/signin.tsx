@@ -12,11 +12,13 @@ type Props = {
 
 export const Signin: React.FC<Props> = () => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true);
     const response = await requestToken(email);
     if (response?.data?.status === "success") {
       toast.success(response.data.data);
@@ -24,6 +26,7 @@ export const Signin: React.FC<Props> = () => {
     } else {
       toast.error(response);
     }
+    setLoading(false);
   };
 
   return (
@@ -118,7 +121,11 @@ export const Signin: React.FC<Props> = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <button className="btn btn_theme w-100 mb-4" onClick={handleSubmit}>
+          <button
+            className="btn btn_theme w-100 mb-4"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
             Continue
           </button>
         </Form.Group>
