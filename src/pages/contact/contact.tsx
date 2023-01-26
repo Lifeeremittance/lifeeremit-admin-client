@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Row, Col, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import logoImage from "../../assets/img/logo.png";
 import phoneImage from "../../assets/img/phone.png";
 // import locationImage from "../../assets/img/location.png";
@@ -12,6 +14,112 @@ type Props = {
 
 export const Contact: React.FC<Props> = () => {
   const navigate = useNavigate();
+
+  const [firstname, setFirstname] = useState<string>("");
+  const [lastname, setLastname] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [companyName, setCompanyName] = useState<string>("");
+  const [industryName, setIndustryName] = useState<string>("");
+  const [reason, setReason] = useState<string>("");
+  const [help, setHelp] = useState<string>("");
+  const [details, setDetails] = useState<string>("");
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const submit = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const data = {
+      fields: [
+        {
+          objectTypeId: "0-1",
+          name: "email",
+          value: email,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "firstname",
+          value: firstname,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "lastname",
+          value: lastname,
+        },
+        // {
+        //   objectTypeId: "0-1",
+        //   name: "subject",
+        //   value: "Jeff",
+        // },
+        {
+          objectTypeId: "0-1",
+          name: "content",
+          value: details,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "company",
+          value: companyName,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "phone",
+          value: phone,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "industry",
+          value: industryName,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "reason",
+          value: reason,
+        },
+        {
+          objectTypeId: "0-1",
+          name: "help",
+          value: help,
+        },
+      ],
+      legalConsentOptions: {
+        consent: {
+          consentToProcess: true,
+          text: "I agree to allow Lifeeremit to store and process my personal data.",
+          communications: [
+            {
+              value: true,
+              subscriptionTypeId: 999,
+              text: "I agree to receive marketing communications from Lifeeremit.",
+            },
+          ],
+        },
+      },
+    };
+
+    const response = await axios.post(
+      `https://api.hsforms.com/submissions/v3/integration/submit/26865383/20b2ce74-2989-41b4-867a-59f53951de77`,
+      data
+    );
+
+    console.log(response);
+
+    setFirstname("");
+    setLastname("");
+    setEmail("");
+    setPhone("");
+    setCompanyName("");
+    setIndustryName("");
+    setReason("");
+    setHelp("");
+    setDetails("");
+
+    setLoading(false);
+
+    window.location.reload();
+  };
 
   return (
     <div className="vw-100 vh-100 body-bg y-scroll px-0 position-relative">
@@ -52,7 +160,7 @@ export const Contact: React.FC<Props> = () => {
 
       <div className="py-5 px-4 px-md-5" id="contact">
         <Row>
-          <Col md={6}>
+          <Col md={5}>
             <h5
               className="text-theme mb-3"
               style={{ letterSpacing: "0.415em" }}
@@ -101,7 +209,7 @@ export const Contact: React.FC<Props> = () => {
             </div>
           </Col>
 
-          <Col md={6}>
+          <Col md={7}>
             <div
               className="bg-theme2 h-100 p-4 p-md-5 mt-3"
               style={{
@@ -110,16 +218,32 @@ export const Contact: React.FC<Props> = () => {
             >
               <h2>Write your message</h2>
 
-              <Form.Control
-                type="text"
-                className="form_inputs border-0 mt-5 w-100"
-                placeholder="Name"
-                style={{
-                  boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
-                  borderRadius: "10px",
-                }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
-              />
+              <Row>
+                <Col md={6}>
+                  <Form.Control
+                    type="text"
+                    className="form_inputs border-0 mt-5 w-100"
+                    placeholder="First Name"
+                    style={{
+                      boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
+                      borderRadius: "10px",
+                    }}
+                    onChange={(e) => setFirstname(e.target.value)}
+                  />
+                </Col>
+                <Col md={6}>
+                  <Form.Control
+                    type="text"
+                    className="form_inputs border-0 mt-5 w-100"
+                    placeholder="Last Name"
+                    style={{
+                      boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
+                      borderRadius: "10px",
+                    }}
+                    onChange={(e) => setLastname(e.target.value)}
+                  />
+                </Col>
+              </Row>
 
               <Form.Control
                 type="text"
@@ -129,7 +253,7 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setCompanyName(e.target.value)}
               />
 
               <Form.Control
@@ -140,7 +264,7 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setIndustryName(e.target.value)}
               />
 
               <Form.Control
@@ -151,7 +275,7 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
 
               <Form.Control
@@ -162,7 +286,7 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setPhone(e.target.value)}
               />
 
               <Form.Control
@@ -173,7 +297,7 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setReason(e.target.value)}
               />
 
               <Form.Control
@@ -184,7 +308,7 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setHelp(e.target.value)}
               />
 
               <Form.Control
@@ -196,14 +320,17 @@ export const Contact: React.FC<Props> = () => {
                   boxShadow: "0px 1px 20px rgba(0, 0, 0, 0.06)",
                   borderRadius: "10px",
                 }}
-                // onChange={(e) => setLicenseKey(e.target.value)}
+                onChange={(e) => setDetails(e.target.value)}
               />
 
-              <input
+              <button
                 type="submit"
                 className="btn btn_theme mt-4 w-100 px-5"
-                value="Submit"
-              />
+                onClick={submit}
+                disabled={loading}
+              >
+                Submit
+              </button>
             </div>
           </Col>
         </Row>
