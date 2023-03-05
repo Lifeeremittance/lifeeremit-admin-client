@@ -202,18 +202,17 @@ export const Provider: React.FC<Props> = () => {
                                       ? // loop through rates and get the value which aligns with currency and country and "-" if not found
                                         rates.map((rate: any) => {
                                           if (
-                                            rate.currency._id !== currency._id
+                                            rate.currency?._id !== currency._id
                                           )
                                             return;
-                                          if (rate.country._id !== country._id)
+                                          if (rate.country?._id !== country._id)
                                             return;
                                           if (
-                                            rate.currency._id ===
+                                            rate.currency?._id ===
                                               currency._id &&
-                                            rate.country._id === country._id
-                                          ) {
+                                            rate.country?._id === country._id
+                                          )
                                             return rate.value;
-                                          }
                                         })
                                       : "-"}
                                   </div>
