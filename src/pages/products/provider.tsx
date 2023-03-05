@@ -248,7 +248,7 @@ export const Provider: React.FC<Props> = () => {
                 <div className="text-center d-flex align-items-center h-100 justify-content-around">
                   {currencies.length > 0
                     ? currencies.map((currency: any, index: any) => (
-                        <div className="fw-bold fs-5">
+                        <div className="fw-bold fs-5" key={index}>
                           {currency.currencyCode}
                         </div>
                       ))
@@ -280,8 +280,8 @@ export const Provider: React.FC<Props> = () => {
                             // find the rate which aligns with currency and country
                             let rate = rates.find(
                               (rate: any) =>
-                                rate.currency._id === currency._id &&
-                                rate.country._id === country._id
+                                rate.currency?._id === currency?._id &&
+                                rate.country?._id === country?._id
                             );
                             const value = rate ? rate.value : "";
                             return (
@@ -293,8 +293,8 @@ export const Provider: React.FC<Props> = () => {
                                   onChange={(e) =>
                                     handleRateChange(
                                       e,
-                                      currency._id,
-                                      country._id
+                                      currency?._id,
+                                      country?._id
                                     )
                                   }
                                 />
