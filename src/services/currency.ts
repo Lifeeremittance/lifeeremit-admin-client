@@ -5,7 +5,7 @@ const cookie = new Cookie();
 const jwt = cookie.get("jwt");
 
 export const getCurrencies = async () => {
-  const response = await Api.get(`/currencies`, {
+  const response = await Api.get(`/currencies?is_active=true`, {
     headers: {
       Authorization: `Bearer ${jwt}`,
     },
@@ -33,3 +33,12 @@ export const createCurrency = async (
   );
   return response;
 };
+
+export const updateCurrency = async (id: string, object: any) => {
+  const response = await Api.patch(`/currencies/${id}`, object, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response;
+}

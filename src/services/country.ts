@@ -5,7 +5,7 @@ const cookie = new Cookie();
 const jwt = cookie.get("jwt");
 
 export const getCountries = async () => {
-  const response = await Api.get(`/countries`, {
+  const response = await Api.get(`/countries?is_active=true`, {
     headers: {
       Authorization: `Bearer ${jwt}`,
     },
@@ -31,5 +31,14 @@ export const createCountry = async (
       },
     }
   );
+  return response;
+};
+
+export const updateCountry = async (id: string, object: any) => {
+  const response = await Api.patch(`/countries/${id}`, object, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
   return response;
 };

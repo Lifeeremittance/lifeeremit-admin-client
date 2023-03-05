@@ -11,8 +11,16 @@ import {
 } from "react-bootstrap";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { toast } from "react-toastify";
-import { createCurrency, getCurrencies } from "../../services/currency";
-import { createCountry, getCountries } from "../../services/country";
+import {
+  createCurrency,
+  getCurrencies,
+  updateCurrency,
+} from "../../services/currency";
+import {
+  createCountry,
+  getCountries,
+  updateCountry,
+} from "../../services/country";
 import { editCharge, getCharges } from "../../services/charges";
 import { storage } from "../../services/firebase";
 import Sidebar from "../../components/sidebar";
@@ -25,8 +33,20 @@ type Props = {
 export const Currencies: React.FC<Props> = () => {
   const [show, setShow] = useState<boolean>(false);
   const [show2, setShow2] = useState<boolean>(false);
+  const [show3, setShow3] = useState<boolean>(false);
+  const [show4, setShow4] = useState<boolean>(false);
+  const [show5, setShow5] = useState<boolean>(false);
+  const [show6, setShow6] = useState<boolean>(false);
 
   const [image, setImage] = useState<any>({
+    preview: "",
+    raw: "",
+  });
+  const [image2, setImage2] = useState<any>({
+    preview: "",
+    raw: "",
+  });
+  const [image3, setImage3] = useState<any>({
     preview: "",
     raw: "",
   });
@@ -40,6 +60,11 @@ export const Currencies: React.FC<Props> = () => {
   const [serviceCharge, setServiceCharge] = useState<string>("");
   const [productInterest, setProductInterest] = useState<string>("");
   const [dollarRate, setDollarRate] = useState<string>("");
+
+  const [currencyName2, setCurrencyName2] = useState<string>("");
+  const [countryName2, setCountryName2] = useState<string>("");
+  const [selectedCurrency, setSelectedCurrency] = useState<any>({});
+  const [selectedCountry, setSelectedCountry] = useState<any>({});
 
   const [currencies, setCurrencies] = useState<any>([]);
   const [countries, setCountries] = useState<any>([]);
@@ -101,16 +126,35 @@ export const Currencies: React.FC<Props> = () => {
       <Dropdown.Item
         eventKey="1"
         className="text-theme"
-        // onClick={() => setShow2(true)}
+        onClick={() => setShow5(true)}
       >
         Edit Country
       </Dropdown.Item>
       <Dropdown.Item
         eventKey="3"
         className="text-danger"
-        // onClick={() => setShow3(true)}
+        onClick={() => setShow6(true)}
       >
         Delete Country
+      </Dropdown.Item>
+    </Dropdown.Menu>
+  );
+
+  const menu2 = (
+    <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
+      <Dropdown.Item
+        eventKey="1"
+        className="text-theme"
+        onClick={() => setShow3(true)}
+      >
+        Edit Currency
+      </Dropdown.Item>
+      <Dropdown.Item
+        eventKey="3"
+        className="text-danger"
+        onClick={() => setShow4(true)}
+      >
+        Delete Currency
       </Dropdown.Item>
     </Dropdown.Menu>
   );
@@ -118,6 +162,24 @@ export const Currencies: React.FC<Props> = () => {
   const handleChange = (e: any) => {
     if (e.target.files.length) {
       setImage({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  const handleChange2 = (e: any) => {
+    if (e.target.files.length) {
+      setImage2({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  const handleChange3 = (e: any) => {
+    if (e.target.files.length) {
+      setImage3({
         preview: URL.createObjectURL(e.target.files[0]),
         raw: e.target.files[0],
       });
@@ -190,6 +252,110 @@ export const Currencies: React.FC<Props> = () => {
     else toast.error(response);
   };
 
+  const handleEdit = async (e: any) => {
+    e.preventDefault();
+    const storageRef = ref(storage, currencyName2);
+    const uploadTask = uploadBytesResumable(storageRef, image2.raw);
+    await uploadTask;
+    const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+    const response = await updateCurrency(selectedCurrency._id, {
+      name: currencyName2,
+      logo: photoUrl,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newCurrencies = currencies.map((currency: any) => {
+        const { currencyName, currencyImage, ...rest } = currency;
+        if (currency._id === selectedCurrency._id)
+          return {
+            ...rest,
+            currencyName: currencyName2,
+            currencyImage: photoUrl,
+          };
+        else return currency;
+      });
+      setCurrencies(newCurrencies);
+
+      toast.success("Currency edited successfully");
+      setShow3(false);
+      setSelectedCurrency({});
+      setImage2({
+        preview: "",
+        raw: "",
+      });
+    } else toast.error(response);
+  };
+
+  const handleDelete = async (e: any) => {
+    e.preventDefault();
+
+    const response = await updateCurrency(selectedCurrency._id, {
+      is_active: false,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newCurrencies = currencies.filter((currency: any) => {
+        return currency._id !== selectedCurrency._id;
+      });
+      setCurrencies(newCurrencies);
+
+      toast.success("Currency deleted successfully");
+      setShow4(false);
+    } else toast.error(response);
+  };
+
+  const handleEdit2 = async (e: any) => {
+    e.preventDefault();
+    const storageRef = ref(storage, countryName2);
+    const uploadTask = uploadBytesResumable(storageRef, image3.raw);
+    await uploadTask;
+    const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+    const response = await updateCountry(selectedCountry._id, {
+      countryName: countryName2,
+      countryFlag: photoUrl,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newCountries = countries.map((country: any) => {
+        const { countryName, countryImage, ...rest } = country;
+        if (country._id === selectedCountry._id)
+          return {
+            ...rest,
+            countryName: countryName2,
+            countryFlag: photoUrl,
+          };
+        else return country;
+      });
+      setCountries(newCountries);
+
+      toast.success("Country edited successfully");
+      setShow5(false);
+      setSelectedCountry({});
+      setImage3({
+        preview: "",
+        raw: "",
+      });
+    } else toast.error(response);
+  };
+
+  const handleDelete2 = async (e: any) => {
+    e.preventDefault();
+
+    const response = await updateCountry(selectedCountry._id, {
+      is_active: false,
+    });
+    console.log(response);
+    if (response.status === 200) {
+      const newCountries = countries.filter((country: any) => {
+        return country._id !== selectedCountry._id;
+      });
+      setCountries(newCountries);
+
+      toast.success("Country deleted successfully");
+      setShow6(false);
+    } else toast.error(response);
+  };
+
   return (
     <Container fluid className="vw-100 vh-100 body-bg">
       <Row className="p-0">
@@ -232,10 +398,13 @@ export const Currencies: React.FC<Props> = () => {
                     {currencies.length > 0
                       ? currencies.map(
                           (
-                            currency: { currencyImage: string | undefined },
+                            currency: any,
                             index: React.Key | null | undefined
                           ) => (
-                            <div className="currency_card" key={index}>
+                            <div
+                              className="currency_card position-relative"
+                              key={index}
+                            >
                               <img
                                 src={currency.currencyImage}
                                 className="w-100"
@@ -243,6 +412,38 @@ export const Currencies: React.FC<Props> = () => {
                                 height="150px"
                                 style={{ borderRadius: "16.35px" }}
                               />
+                              <div
+                                className="d-flex align-items-center justify-content-center pencil_icon position-absolute cursor-pointer"
+                                style={{
+                                  height: "28px",
+                                  width: "28px",
+                                  right: "-10px",
+                                  top: "-10px",
+                                }}
+                                onClick={() => setSelectedCurrency(currency)}
+                              >
+                                <Dropdown className="position-absolute">
+                                  <Dropdown.Toggle
+                                    as={CustomToggle}
+                                    id="dropdown-custom-components"
+                                    split
+                                  >
+                                    <svg
+                                      width="14"
+                                      height="13"
+                                      viewBox="0 0 14 13"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M0.862022 9.41188L0.839844 11.918C0.839844 12.0511 0.8842 12.2063 0.995091 12.295C1.10598 12.3838 1.23905 12.4503 1.37212 12.4503L3.87826 12.4281C4.01133 12.4281 4.1444 12.3616 4.25529 12.2729L12.8604 3.66772C13.06 3.46812 13.06 3.11327 12.8604 2.91366L10.3765 0.429703C10.1769 0.230099 9.82202 0.230099 9.62242 0.429703L7.89252 2.1596L1.01727 9.03485C0.906379 9.14574 0.862022 9.27881 0.862022 9.41188ZM11.7293 3.29069L10.7535 4.26653L9.02361 2.53663L9.99945 1.56079L11.7293 3.29069ZM1.92658 9.63366L8.26955 3.29069L9.99945 5.02059L3.65648 11.3636H1.92658V9.63366Z"
+                                        fill="#263238"
+                                      />
+                                    </svg>
+                                  </Dropdown.Toggle>
+                                  {menu2}
+                                </Dropdown>
+                              </div>
                             </div>
                           )
                         )
@@ -369,7 +570,7 @@ export const Currencies: React.FC<Props> = () => {
                                 right: "-10px",
                                 top: "-10px",
                               }}
-                              // onClick={() => setcountry(country)}
+                              onClick={() => setSelectedCountry(country)}
                             >
                               <Dropdown className="position-absolute">
                                 <Dropdown.Toggle
@@ -623,6 +824,236 @@ export const Currencies: React.FC<Props> = () => {
                 onClick={handleSubmit2}
               >
                 Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show3}
+        onHide={() => setShow3(false)}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="small-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center mb-3">
+              <b className="fs-5">Edit Currency</b>
+            </div>
+
+            <Form>
+              <Form.Group controlId="formForPayment">
+                <Form.Label>
+                  <b>OEM</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  defaultValue={selectedCurrency.currencyName}
+                  onChange={(e) => setCurrencyName2(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Currency Image</b>
+                </Form.Label>
+                <div
+                  className="d-flex align-items-center justify-content-center to_upload cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  <span className="d-flex flex-column align-items-center w-100">
+                    {image2.preview ? (
+                      <img
+                        src={image2.preview}
+                        height="98px"
+                        width="98px"
+                        alt="profile"
+                        onClick={triggerFileInput}
+                      />
+                    ) : (
+                      <>
+                        <svg
+                          width="50"
+                          height="34"
+                          viewBox="0 0 50 34"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M40.3125 12.5833C38.8958 5.39583 32.5833 0 25 0C18.9792 0 13.75 3.41667 11.1458 8.41667C4.875 9.08333 0 14.3958 0 20.8333C0 27.7292 5.60417 33.3333 12.5 33.3333H39.5833C45.3333 33.3333 50 28.6667 50 22.9167C50 17.4167 45.7292 12.9583 40.3125 12.5833ZM39.5833 29.1667H12.5C7.89583 29.1667 4.16667 25.4375 4.16667 20.8333C4.16667 16.5625 7.35417 13 11.5833 12.5625L13.8125 12.3333L14.8542 10.3542C16.8333 6.54167 20.7083 4.16667 25 4.16667C30.4583 4.16667 35.1667 8.04167 36.2292 13.3958L36.8542 16.5208L40.0417 16.75C43.2917 16.9583 45.8333 19.6875 45.8333 22.9167C45.8333 26.3542 43.0208 29.1667 39.5833 29.1667ZM16.6667 18.75H21.9792V25H28.0208V18.75H33.3333L25 10.4167L16.6667 18.75Z"
+                            fill="#C7C7CC"
+                          />
+                        </svg>
+                        <span className="text-small">Upload Logo</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".png, .jpg, .jpeg"
+                  onChange={handleChange2}
+                />
+              </Form.Group>
+            </Form>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleEdit}
+              >
+                Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show4}
+        onHide={() => setShow4(false)}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="details-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center">
+              <b className="fs-5">
+                Are you sure you want to delete this Currency?
+              </b>
+            </div>
+            <hr className="mt-2 mb-3" />
+
+            <span className="fs-6">
+              Note: Deleting this Currency is an action that cannot be undone
+            </span>
+
+            <div className="text-right mt-5">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show5}
+        onHide={() => setShow5(false)}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="small-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center mb-3">
+              <b className="fs-5">Edit Country</b>
+            </div>
+
+            <Form>
+              <Form.Group controlId="formForPayment">
+                <Form.Label>
+                  <b>OEM</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  defaultValue={selectedCountry.countryName}
+                  onChange={(e) => setCountryName2(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Country Flag</b>
+                </Form.Label>
+                <div
+                  className="d-flex align-items-center justify-content-center to_upload cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  <span className="d-flex flex-column align-items-center w-100">
+                    {image3.preview ? (
+                      <img
+                        src={image3.preview}
+                        height="98px"
+                        width="98px"
+                        alt="profile"
+                        onClick={triggerFileInput}
+                      />
+                    ) : (
+                      <>
+                        <svg
+                          width="50"
+                          height="34"
+                          viewBox="0 0 50 34"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M40.3125 12.5833C38.8958 5.39583 32.5833 0 25 0C18.9792 0 13.75 3.41667 11.1458 8.41667C4.875 9.08333 0 14.3958 0 20.8333C0 27.7292 5.60417 33.3333 12.5 33.3333H39.5833C45.3333 33.3333 50 28.6667 50 22.9167C50 17.4167 45.7292 12.9583 40.3125 12.5833ZM39.5833 29.1667H12.5C7.89583 29.1667 4.16667 25.4375 4.16667 20.8333C4.16667 16.5625 7.35417 13 11.5833 12.5625L13.8125 12.3333L14.8542 10.3542C16.8333 6.54167 20.7083 4.16667 25 4.16667C30.4583 4.16667 35.1667 8.04167 36.2292 13.3958L36.8542 16.5208L40.0417 16.75C43.2917 16.9583 45.8333 19.6875 45.8333 22.9167C45.8333 26.3542 43.0208 29.1667 39.5833 29.1667ZM16.6667 18.75H21.9792V25H28.0208V18.75H33.3333L25 10.4167L16.6667 18.75Z"
+                            fill="#C7C7CC"
+                          />
+                        </svg>
+                        <span className="text-small">Upload Flag</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".png, .jpg, .jpeg"
+                  onChange={handleChange3}
+                />
+              </Form.Group>
+            </Form>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleEdit2}
+              >
+                Done
+              </button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Modal>
+
+      <Modal
+        show={show6}
+        onHide={() => setShow6(false)}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        dialogClassName="details-modal border-0"
+      >
+        <Card className="details_modal_card p-3">
+          <Card.Body>
+            <div className="text-center">
+              <b className="fs-5">
+                Are you sure you want to delete this Country?
+              </b>
+            </div>
+            <hr className="mt-2 mb-3" />
+
+            <span className="fs-6">
+              Note: Deleting this Country is an action that cannot be undone
+            </span>
+
+            <div className="text-right mt-5">
+              <button
+                className="btn btn_theme btn_theme2 w-50"
+                onClick={handleDelete2}
+              >
+                Delete
               </button>
             </div>
           </Card.Body>
