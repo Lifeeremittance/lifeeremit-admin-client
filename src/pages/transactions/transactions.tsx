@@ -36,6 +36,7 @@ export const Transactions: React.FC<Props> = () => {
   const [licenseKeyModal, setLicenseKeyModal] = useState<boolean>(false);
   const [invoice, setInvoice] = useState<boolean>(false);
   const [adminInvoice, setAdminInvoice] = useState<boolean>(false);
+  const [paymitInvoice, setPaymitInvoice] = useState<boolean>(false);
 
   const [tempKey, setTempKey] = useState("");
   const [licenseKey, setLicenseKey] = useState("");
@@ -526,6 +527,15 @@ export const Transactions: React.FC<Props> = () => {
                                     }}
                                   >
                                     Transaction Invoice
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    eventKey="4"
+                                    onClick={() => {
+                                      setPaymitInvoice(true);
+                                      setSelectedOrder(order);
+                                    }}
+                                  >
+                                    Paymit Invoice
                                   </Dropdown.Item>
                                   <Dropdown.Item
                                     eventKey="2"
@@ -1100,6 +1110,29 @@ export const Transactions: React.FC<Props> = () => {
                 <embed
                   src={
                     selectedOrder.admin_invoice +
+                    "#toolbar=0&navpanes=0&scrollbar=0"
+                  }
+                  type="application/pdf"
+                  height="100%"
+                  width="100%"
+                ></embed>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={paymitInvoice}
+            onHide={() => setPaymitInvoice(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="invoice-modal border-0"
+          >
+            <Card className="invoice_modal_card p-3 vh-100">
+              <Card.Body>
+                <embed
+                  src={
+                    selectedOrder.zoho_invoice +
                     "#toolbar=0&navpanes=0&scrollbar=0"
                   }
                   type="application/pdf"
