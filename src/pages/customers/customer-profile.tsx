@@ -7,12 +7,17 @@ import {
   Table,
   Card,
   Modal,
+  Form,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import { getUserById } from "../../services/user";
-import { getCustomerOrders } from "../../services/order";
+import { getCustomerOrders, updateOrder } from "../../services/order";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Sidebar from "../../components/sidebar";
 import Header from "../../components/header";
+import { storage } from "../../services/firebase";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
@@ -22,10 +27,41 @@ export const CustomerProfile: React.FC<Props> = () => {
   const [customer, setCustomer] = useState<any>({});
   const [orders, setOrders] = useState<any>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>({});
-  const [details, setDetails] = useState<boolean>(false);
+
+  const [detailsModal, setDetailsModal] = useState<boolean>(false);
+  const [receiptModal, setReceiptModal] = useState<boolean>(false);
+  const [tempKeyModal, setTempKeyModal] = useState<boolean>(false);
+  const [licenseKeyModal, setLicenseKeyModal] = useState<boolean>(false);
+  const [invoice, setInvoice] = useState<boolean>(false);
+  const [adminInvoice, setAdminInvoice] = useState<boolean>(false);
+  const [paymitInvoice, setPaymitInvoice] = useState<boolean>(false);
+
+  const [tempKey, setTempKey] = useState("");
+  const [licenseKey, setLicenseKey] = useState("");
+  const [tempKeyExp, setTempKeyExp] = useState("");
+  const [licenseKeyExp, setLicenseKeyExp] = useState("");
+
+  const [pdf, setPdf] = useState<any>({
+    preview: "",
+    raw: null,
+  });
 
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const handleChange = (e: any) => {
+    if (e.target.files.length) {
+      setPdf({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  const triggerFileInput = () => {
+    const hold = document?.getElementById("upload-button");
+    hold?.click();
+  };
 
   useEffect(() => {
     getUserById(id)
@@ -65,6 +101,59 @@ export const CustomerProfile: React.FC<Props> = () => {
       </b>
     )
   );
+
+  const handleTempSumbit = async (e: any) => {
+    e.preventDefault();
+    const response = await updateOrder(selectedOrder._id, {
+      temp_key: tempKey,
+      temp_key_exp_date: tempKeyExp,
+      status: "temp_key",
+    });
+    console.log(response);
+    if (response.status === 200) {
+      toast.success(response.data.data);
+      setTempKeyModal(false);
+      setTempKey("");
+      setTempKeyExp("");
+    } else toast.error(response);
+  };
+
+  const handleLicenseSubmit = async (e: any) => {
+    e.preventDefault();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const storageRef = ref(storage, randomString);
+    const uploadTask = uploadBytesResumable(storageRef, pdf.raw);
+    await uploadTask;
+    const pdfUrl = await getDownloadURL(uploadTask.snapshot.ref);
+    const response = await updateOrder(selectedOrder._id, {
+      license_key: licenseKey,
+      license_key_exp_date: licenseKeyExp,
+      status: "licensed",
+      admin_invoice: pdfUrl,
+    });
+    if (response.status === 200) {
+      toast.success(response.data.data);
+      setLicenseKeyModal(false);
+      setLicenseKey("");
+      setLicenseKeyExp("");
+    } else toast.error(response);
+  };
+
+  const contactOem = async (selectedOrder: any) => {
+    const response = await updateOrder(selectedOrder._id, {
+      status: "awaiting_key",
+    });
+    if (response.status === 200) {
+      toast.success(response.data.data);
+      // replace the status of selectedOrder with the new status and update the orders state variable with the new selectedOrder
+      selectedOrder.status = ["awaiting_key"];
+      const newOrders = orders.map((order: any) => {
+        if (order._id === selectedOrder._id) return selectedOrder;
+        return order;
+      });
+      setOrders(newOrders);
+    } else toast.error(response);
+  };
 
   return (
     <Container fluid className="vw-100 vh-100 body-bg">
@@ -581,12 +670,75 @@ export const CustomerProfile: React.FC<Props> = () => {
                               <Dropdown.Menu className="fs-6 border-0 drop-down-menu">
                                 <Dropdown.Item
                                   eventKey="1"
+                                  className="text-success"
                                   onClick={() => {
-                                    setDetails(true);
+                                    setReceiptModal(true);
+                                    setSelectedOrder(order);
+                                  }}
+                                >
+                                  View Receipt
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="3"
+                                  onClick={() => {
+                                    setDetailsModal(true);
                                     setSelectedOrder(order);
                                   }}
                                 >
                                   View Details
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="4"
+                                  onClick={() => {
+                                    setInvoice(true);
+                                    setSelectedOrder(order);
+                                  }}
+                                >
+                                  View Invoice
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="4"
+                                  onClick={() => {
+                                    setAdminInvoice(true);
+                                    setSelectedOrder(order);
+                                  }}
+                                >
+                                  Transaction Invoice
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="4"
+                                  onClick={() => {
+                                    setPaymitInvoice(true);
+                                    setSelectedOrder(order);
+                                  }}
+                                >
+                                  Paymit Invoice
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="2"
+                                  onClick={() => contactOem(order)}
+                                >
+                                  Contact OEM
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="5"
+                                  className="text-theme"
+                                  onClick={() => {
+                                    setTempKeyModal(true);
+                                    setSelectedOrder(order);
+                                  }}
+                                >
+                                  Temp Key
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  eventKey="6"
+                                  className="text-theme"
+                                  onClick={() => {
+                                    setLicenseKeyModal(true);
+                                    setSelectedOrder(order);
+                                  }}
+                                >
+                                  License Key
                                 </Dropdown.Item>
                               </Dropdown.Menu>
                             </Dropdown>
@@ -604,165 +756,554 @@ export const CustomerProfile: React.FC<Props> = () => {
       </Row>
 
       {Object.keys(selectedOrder).length !== 0 && (
-        <Modal
-          show={details}
-          onHide={() => setDetails(false)}
-          size="sm"
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-          backdrop="static"
-          dialogClassName="details-modal border-0"
-        >
-          <Card className="details_modal_card">
-            <Card.Body className="p-4">
-              <div className="text-center">
-                <b className="fs-5">DETAILS</b>
-              </div>
-              <hr className="my-3" />
+        <>
+          <Modal
+            show={detailsModal}
+            onHide={() => setDetailsModal(false)}
+            size="sm"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            backdrop="static"
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card">
+              <Card.Body className="p-4">
+                <div className="text-center">
+                  <b className="fs-5">DETAILS</b>
+                </div>
+                <hr className="my-3" />
 
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Company Name</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.company_name}</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Company Address</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.company_address}</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Product</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.product.name}</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Provider</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.provider.name}</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Date</span>
-                </Col>
-                <Col xs={6}>
-                  <b>
-                    {new Date(selectedOrder.created_at).toLocaleString(
-                      "en-US",
-                      {
-                        day: "numeric",
-                        year: "numeric",
-                        month: "short",
-                      }
-                    )}
-                  </b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Status</span>
-                </Col>
-                <Col xs={6}>
-                  <span
-                    className={
-                      selectedOrder.status.includes("payment_successful")
-                        ? `text-success`
-                        : `text-theme`
-                    }
-                  >
-                    {selectedOrder.status.includes("payment_successful")
-                      ? "Success"
-                      : "Pending"}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Product Value</span>
-                </Col>
-                <Col xs={6}>
-                  <b>
-                    {selectedOrder.product_value
-                      ? selectedOrder.product_value / 100 + " NGN"
-                      : "-"}
-                  </b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Naira Rate</span>
-                </Col>
-                <Col xs={6}>
-                  <b>NGN 600</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Total Amount Paid</span>
-                </Col>
-                <Col xs={6}>
-                  <b>
-                    {selectedOrder.amount
-                      ? selectedOrder.amount / 100 + " NGN"
-                      : "-"}
-                  </b>
-                </Col>
-              </Row>
-              {/* <Row className="mb-3">
+                <Row className="mb-3">
                   <Col xs={6}>
+                    <span className="text-muted">Company Name</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.company_name}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Company Address</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.company_address}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Product</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.product.name}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Provider</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.provider.name}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Date</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {new Date(selectedOrder.created_at).toLocaleString(
+                        "en-US",
+                        {
+                          day: "numeric",
+                          year: "numeric",
+                          month: "short",
+                        }
+                      )}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Status</span>
+                  </Col>
+                  <Col xs={6}>
+                    <span
+                      className={
+                        selectedOrder.status.includes("payment_successful")
+                          ? `text-success`
+                          : `text-theme`
+                      }
+                    >
+                      {selectedOrder.status.includes("payment_successful")
+                        ? "Success"
+                        : "Pending"}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Product Value</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {selectedOrder.product_value
+                        ? selectedOrder.product_value / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Naira Rate</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>NGN 600</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Total Amount Paid</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>
+                      {selectedOrder.amount
+                        ? selectedOrder.amount / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                {/* <Row className="mb-3">
+        <Col xs={6}>
+          <span className="text-muted">Transaction No</span>
+        </Col>
+        <Col xs={6}>
+          <b>PM001</b>
+        </Col>
+      </Row> */}
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Reference No</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.reference_number || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Invoice No</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.invoice_number || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col xs={6}>
+                    <span className="text-muted">Reason</span>
+                  </Col>
+                  <Col xs={6}>
+                    <b>{selectedOrder.reason || "-"}</b>
+                  </Col>
+                </Row>
+
+                <div className="text-center mt-4">
+                  <button
+                    className="btn btn_theme btn_theme2 w-50"
+                    onClick={() => setDetailsModal(false)}
+                  >
+                    Done
+                  </button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={receiptModal}
+            onHide={() => setReceiptModal(false)}
+            size="sm"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card border-0">
+              <div
+                className="text-center bg-theme text-white p-3"
+                style={{ borderRadius: "30px 30px 0px 0px" }}
+              >
+                <b className="fs-5">Paymit</b>
+              </div>
+              <Card.Body className="p-4">
+                <div className="d-flex align-items-center justify-content-between">
+                  <b>Receipt</b>
+                </div>
+
+                <div className="dotted my-3"></div>
+
+                <b className="text-small">
+                  {new Date(selectedOrder.created_at).toLocaleString("en-US", {
+                    day: "numeric",
+                    year: "numeric",
+                    month: "short",
+                  })}
+                </b>
+
+                <Row className="mt-3">
+                  <Col xs={5}>
+                    <span className="text-muted">Product</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.product.name}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Name</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.user.fullName || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Temp Key</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.temp_key || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">License Key</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.license_key || "-"}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
                     <span className="text-muted">Transaction No</span>
                   </Col>
-                  <Col xs={6}>
-                    <b>PM001</b>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.order_number
+                        ? selectedOrder.order_number
+                        : "-"}
+                    </b>
                   </Col>
-                </Row> */}
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Reference No</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.reference_number || "-"}</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Invoice No</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.invoice_number || "-"}</b>
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col xs={6}>
-                  <span className="text-muted">Reason</span>
-                </Col>
-                <Col xs={6}>
-                  <b>{selectedOrder.reason || "-"}</b>
-                </Col>
-              </Row>
+                </Row>
 
-              <div className="text-center mt-4">
-                <button
-                  className="btn btn_theme btn_theme2 w-50"
-                  onClick={() => setDetails(false)}
-                >
-                  Done
-                </button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Modal>
+                <div className="dotted my-3"></div>
+
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Total Amount</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.amount
+                        ? selectedOrder.amount / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Product Value</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.product_value
+                        ? selectedOrder.product_value / 100 + " NGN"
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Exchange Rate</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      {selectedOrder.currency
+                        ? `1 ${selectedOrder.country.countryCode} = 
+          ${selectedOrder.rate} ${selectedOrder.currency?.currencyCode}`
+                        : "-"}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Service Charge</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>${selectedOrder.service_charge || ""}</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Interest Change</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>
+                      %{selectedOrder.product_interest} = 1{" "}
+                      {selectedOrder.country.countryCode}
+                    </b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Dollar rate</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>1 USD = {selectedOrder.dollar_rate} NGN</b>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={5}>
+                    <span className="text-muted">Reason</span>
+                  </Col>
+                  <Col xs={7}>
+                    <b>{selectedOrder.reason || "-"}</b>
+                  </Col>
+                </Row>
+
+                <div className="text-center mt-4">
+                  <svg
+                    width="145"
+                    height="47"
+                    viewBox="0 0 145 47"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M5.09766 47H0V0H5.09766V47ZM10.1953 46.9666H7.60603V0H10.1953V46.9666ZM17.8013 46.9666H15.293V0H17.8013V46.9666ZM30.505 46.9666H27.9967V0H30.505V46.9666ZM43.2087 46.9666H38.192V0H43.2087V46.9666ZM53.404 46.9666H50.8956V0H53.404V46.9666ZM58.5017 46.9666H55.9933V0H58.5017V46.9666ZM63.5993 46.9666H61.091V0H63.5993V46.9666ZM76.303 46.9666H71.2054V0H76.303V46.9666ZM89.0067 46.9666H83.909V0H89.0067V46.9666ZM99.202 46.9666H94.1043V0H99.202V46.9666ZM109.397 46.9666H104.3V0H109.397V46.9666ZM117.003 46.9666H111.906V0H117.003V46.9666ZM132.296 46.9666H124.69V0H132.296V46.9666ZM137.394 46.9666H134.805V0H137.394V46.9666ZM145 47H139.902V0H145V47Z"
+                      fill="black"
+                    />
+                  </svg>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={tempKeyModal}
+            onHide={() => setTempKeyModal(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card p-3">
+              <Card.Body>
+                <div className="text-center">
+                  <b className="fs-6">TEMP KEY</b>
+                </div>
+                <hr className="mt-2 mb-3" />
+
+                <Form>
+                  <Form.Group controlId="formForPayment">
+                    <Form.Label>
+                      <b>TEMPORARY KEY</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      className="form_inputs mb-3 w-100"
+                      defaultValue={selectedOrder.temp_key || tempKey}
+                      onChange={(e) => setTempKey(e.target.value)}
+                    />
+                    <Form.Label>
+                      <b>EXPIRY DATE</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="date"
+                      className="form_inputs mb-3 w-100"
+                      placeholder="DD/MM/YYYY"
+                      defaultValue={
+                        selectedOrder.temp_key_exp_date || tempKeyExp
+                      }
+                      onChange={(e) => setTempKeyExp(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
+
+                <div className="text-right mt-5">
+                  <button
+                    className="btn btn_theme btn_theme2 w-50"
+                    onClick={handleTempSumbit}
+                  >
+                    Done
+                  </button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={licenseKeyModal}
+            onHide={() => setLicenseKeyModal(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="details-modal border-0"
+          >
+            <Card className="details_modal_card p-3">
+              <Card.Body>
+                <div className="text-center">
+                  <b className="fs-6">LICENSE KEY</b>
+                </div>
+                <hr className="mt-2 mb-3" />
+                <Form>
+                  <Form.Group controlId="formForPayment">
+                    <Form.Label>
+                      <b>LICENSE KEY</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      className="form_inputs mb-3 w-100"
+                      defaultValue={selectedOrder.license_key || licenseKey}
+                      onChange={(e) => setLicenseKey(e.target.value)}
+                    />
+                    <Form.Label>
+                      <b>EXPIRY DATE</b>
+                    </Form.Label>
+                    <Form.Control
+                      type="date"
+                      className="form_inputs mb-3 w-100"
+                      placeholder="DD/MM/YYYY"
+                      defaultValue={
+                        selectedOrder.license_key_exp_date || licenseKeyExp
+                      }
+                      onChange={(e) => setLicenseKeyExp(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
+
+                <div className="d-flex align-items-center mt-4">
+                  <div
+                    className="d-grid me-3 cursor-pointer"
+                    style={{
+                      width: 40,
+                      height: 40,
+                      background: "#263238",
+                      borderRadius: "10px",
+                      placeContent: "center",
+                    }}
+                    onClick={triggerFileInput}
+                  >
+                    <svg
+                      width="16"
+                      height="19"
+                      viewBox="0 0 16 19"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M14.0759 9.58066L8.44551 15.211C6.90171 16.7548 4.44979 16.7548 2.9968 15.211C1.45299 13.6672 1.45299 11.2153 2.9968 9.76229L10.2618 2.49733C11.1699 1.68002 12.5321 1.68002 13.4402 2.49733C14.3483 3.40545 14.3483 4.85844 13.4402 5.67575L7.17415 11.9418C6.90171 12.2142 6.44765 12.2142 6.17521 11.9418C5.90278 11.6693 5.90278 11.2153 6.17521 10.9428L10.8066 6.31143C11.1699 5.94818 11.1699 5.40331 10.8066 5.04006C10.4434 4.67682 9.8985 4.67682 9.53526 5.04006L4.90385 9.76229C3.90491 10.7612 3.90491 12.305 4.90385 13.304C5.90278 14.2121 7.44658 14.2121 8.44551 13.304L14.7115 7.03793C16.3462 5.40331 16.3462 2.86058 14.7115 1.22596C13.0769 -0.408654 10.5342 -0.408654 8.89957 1.22596L1.63462 8.49092C0.544872 9.58066 0 11.0337 0 12.4866C0 15.6651 2.54273 18.117 5.72115 18.117C7.26496 18.117 8.62714 17.4813 9.71688 16.4824L15.3472 10.852C15.7105 10.4888 15.7105 9.94391 15.3472 9.58066C14.984 9.21741 14.4391 9.21741 14.0759 9.58066Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </div>
+                  Attach Invoice
+                </div>
+                {pdf.preview && (
+                  <embed
+                    src={pdf.preview}
+                    type="application/pdf"
+                    height="100%"
+                    width="100%"
+                    onClick={triggerFileInput}
+                    className="mt-3"
+                  ></embed>
+                )}
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="d-none"
+                  accept=".pdf"
+                  onChange={handleChange}
+                />
+                <div className="text-right mt-5">
+                  <button
+                    className="btn btn_theme btn_theme2 w-50"
+                    onClick={handleLicenseSubmit}
+                  >
+                    Done
+                  </button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={invoice}
+            onHide={() => setInvoice(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="invoice-modal border-0"
+          >
+            <Card className="invoice_modal_card p-3 vh-100">
+              <Card.Body>
+                <embed
+                  src={
+                    selectedOrder.invoice + "#toolbar=0&navpanes=0&scrollbar=0"
+                  }
+                  type="application/pdf"
+                  height="100%"
+                  width="100%"
+                ></embed>
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={adminInvoice}
+            onHide={() => setAdminInvoice(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="invoice-modal border-0"
+          >
+            <Card className="invoice_modal_card p-3 vh-100">
+              <Card.Body>
+                {selectedOrder.admin_invoice && (
+                  <embed
+                    src={
+                      selectedOrder.admin_invoice +
+                      "#toolbar=0&navpanes=0&scrollbar=0"
+                    }
+                    type="application/pdf"
+                    height="100%"
+                    width="100%"
+                  ></embed>
+                )}
+              </Card.Body>
+            </Card>
+          </Modal>
+
+          <Modal
+            show={paymitInvoice}
+            onHide={() => setPaymitInvoice(false)}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            dialogClassName="invoice-modal border-0"
+          >
+            <Card className="invoice_modal_card p-3 vh-100">
+              <Card.Body>
+                <embed
+                  src={
+                    selectedOrder.zoho_invoice +
+                    "#toolbar=0&navpanes=0&scrollbar=0"
+                  }
+                  type="application/pdf"
+                  height="100%"
+                  width="100%"
+                ></embed>
+              </Card.Body>
+            </Card>
+          </Modal>
+        </>
       )}
     </Container>
   );
