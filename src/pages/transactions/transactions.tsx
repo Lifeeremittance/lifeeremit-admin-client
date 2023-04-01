@@ -1107,15 +1107,17 @@ export const Transactions: React.FC<Props> = () => {
           >
             <Card className="invoice_modal_card p-3 vh-100">
               <Card.Body>
-                <embed
-                  src={
-                    selectedOrder.admin_invoice +
-                    "#toolbar=0&navpanes=0&scrollbar=0"
-                  }
-                  type="application/pdf"
-                  height="100%"
-                  width="100%"
-                ></embed>
+                {selectedOrder.admin_invoice && (
+                  <embed
+                    src={
+                      selectedOrder.admin_invoice +
+                      "#toolbar=0&navpanes=0&scrollbar=0"
+                    }
+                    type="application/pdf"
+                    height="100%"
+                    width="100%"
+                  ></embed>
+                )}
               </Card.Body>
             </Card>
           </Modal>
