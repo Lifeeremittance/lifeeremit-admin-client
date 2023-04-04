@@ -30,6 +30,9 @@ export const Products: React.FC<Props> = () => {
   const [productName, setProductName] = useState<string>("");
   const [productName2, setProductName2] = useState<string>("");
   const [editedProductName, setEditedProductName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [editedEmailName, setEditedEmailName] = useState<string>("");
+  const [email2, setEmail2] = useState<string>("");
 
   const [products, setProducts] = useState<any>([]);
   const [product, setProduct] = useState<any>({});
@@ -88,7 +91,7 @@ export const Products: React.FC<Props> = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const response = await createProduct(productName, id);
+    const response = await createProduct(productName, email, id);
     if (response.status === 201) {
       setProducts([...products, response.data.data]);
       toast.success("Product created successfully");
@@ -103,6 +106,7 @@ export const Products: React.FC<Props> = () => {
     e.preventDefault();
     const response = await updateProduct(product._id, {
       name: productName2,
+      email: email2,
     });
     if (response.status === 200) {
       const newProducts = products.map((p: any) => {
@@ -122,6 +126,7 @@ export const Products: React.FC<Props> = () => {
       toast.success("Product edit successfully");
       setShow2(false);
       setProductName2("");
+      setEmail2("");
     } else {
       toast.error(response);
     }
@@ -175,6 +180,7 @@ export const Products: React.FC<Props> = () => {
                           onClick={() => {
                             setProduct(product);
                             setEditedProductName(product.name);
+                            setEditedEmailName(product.email);
                           }}
                         >
                           <Dropdown className="position-absolute">
@@ -266,8 +272,18 @@ export const Products: React.FC<Props> = () => {
                 <Form.Control
                   type="text"
                   className="form_inputs mb-3 w-100"
+                  placeholder="Enter product name"
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
+                />
+
+                <Form.Label className="fw-bold">Email Address</Form.Label>
+                <Form.Control
+                  type="email"
+                  placeholder="Enter email address"
+                  className="form_inputs mb-4 w-100"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </Form.Group>
             </Form>
@@ -308,6 +324,15 @@ export const Products: React.FC<Props> = () => {
                   className="form_inputs mb-3 w-100"
                   defaultValue={editedProductName}
                   onChange={(e) => setProductName2(e.target.value)}
+                />
+
+                <Form.Label className="fw-bold">Email Address</Form.Label>
+                <Form.Control
+                  type="email"
+                  placeholder="Enter email address"
+                  className="form_inputs mb-4 w-100"
+                  value={editedEmailName}
+                  onChange={(e) => setEmail2(e.target.value)}
                 />
               </Form.Group>
             </Form>
