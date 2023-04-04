@@ -24,12 +24,14 @@ export const getAllProducts = async () => {
 
 export const createProduct = async (
   name: string,
+  email: string,
   provider: string | undefined
 ) => {
   const response = await Api.post(
     `/products`,
     {
       name,
+      email,
       provider,
     },
     {
