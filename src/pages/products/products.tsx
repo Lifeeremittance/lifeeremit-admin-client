@@ -145,7 +145,7 @@ export const Products: React.FC<Props> = () => {
       });
       setProducts(newProducts);
 
-      toast.success("Provider deleted successfully");
+      toast.success("Product deleted successfully");
       setShow3(false);
     } else {
       toast.error(response);
