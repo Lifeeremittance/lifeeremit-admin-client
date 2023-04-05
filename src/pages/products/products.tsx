@@ -331,7 +331,7 @@ export const Products: React.FC<Props> = () => {
                   type="email"
                   placeholder="Enter email address"
                   className="form_inputs mb-4 w-100"
-                  value={editedEmailName}
+                  defaultValue={editedEmailName}
                   onChange={(e) => setEmail2(e.target.value)}
                 />
               </Form.Group>
