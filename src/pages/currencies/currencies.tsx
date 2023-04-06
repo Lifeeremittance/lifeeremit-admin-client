@@ -63,6 +63,8 @@ export const Currencies: React.FC<Props> = () => {
 
   const [currencyName2, setCurrencyName2] = useState<string>("");
   const [countryName2, setCountryName2] = useState<string>("");
+  const [currencyCode2, setCurrencyCode2] = useState<string>("");
+  const [countryCode2, setCountryCode2] = useState<string>("");
   const [selectedCurrency, setSelectedCurrency] = useState<any>({});
   const [selectedCountry, setSelectedCountry] = useState<any>({});
 
@@ -259,8 +261,9 @@ export const Currencies: React.FC<Props> = () => {
     await uploadTask;
     const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
     const response = await updateCurrency(selectedCurrency._id, {
-      name: currencyName2,
-      logo: photoUrl,
+      currencyName: currencyName2,
+      currencyCode: currencyCode2,
+      currencyImage: photoUrl,
     });
     console.log(response);
     if (response.status === 200) {
@@ -270,6 +273,7 @@ export const Currencies: React.FC<Props> = () => {
           return {
             ...rest,
             currencyName: currencyName2,
+            currencyCode: currencyCode2,
             currencyImage: photoUrl,
           };
         else return currency;
@@ -312,6 +316,7 @@ export const Currencies: React.FC<Props> = () => {
     const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
     const response = await updateCountry(selectedCountry._id, {
       countryName: countryName2,
+      countryCode: countryCode2,
       countryFlag: photoUrl,
     });
     console.log(response);
@@ -322,6 +327,7 @@ export const Currencies: React.FC<Props> = () => {
           return {
             ...rest,
             countryName: countryName2,
+            countryCode: countryCode2,
             countryFlag: photoUrl,
           };
         else return country;
@@ -847,7 +853,7 @@ export const Currencies: React.FC<Props> = () => {
             <Form>
               <Form.Group controlId="formForPayment">
                 <Form.Label>
-                  <b>OEM</b>
+                  <b>Currency Name</b>
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -856,7 +862,16 @@ export const Currencies: React.FC<Props> = () => {
                   onChange={(e) => setCurrencyName2(e.target.value)}
                 />
                 <Form.Label>
-                  <b>Currency Image</b>
+                  <b>Currency Short Code</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  defaultValue={selectedCurrency.currencyCode}
+                  onChange={(e) => setCurrencyCode2(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Currency Code</b>
                 </Form.Label>
                 <div
                   className="d-flex align-items-center justify-content-center to_upload cursor-pointer"
@@ -962,13 +977,22 @@ export const Currencies: React.FC<Props> = () => {
             <Form>
               <Form.Group controlId="formForPayment">
                 <Form.Label>
-                  <b>OEM</b>
+                  <b>Country Name</b>
                 </Form.Label>
                 <Form.Control
                   type="text"
                   className="form_inputs mb-3 w-100"
                   defaultValue={selectedCountry.countryName}
                   onChange={(e) => setCountryName2(e.target.value)}
+                />
+                <Form.Label>
+                  <b>Country Code</b>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  className="form_inputs mb-3 w-100"
+                  defaultValue={selectedCountry.countryCode}
+                  onChange={(e) => setCountryCode2(e.target.value)}
                 />
                 <Form.Label>
                   <b>Country Flag</b>
