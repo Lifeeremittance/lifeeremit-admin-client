@@ -474,12 +474,12 @@ export const Transactions: React.FC<Props> = () => {
                             <td>{status}</td>
                             <td>
                               {order.product_value
-                                ? order.product_value / 100 + " NGN"
+                                ? order.product_value + " NGN"
                                 : "-"}
                             </td>
                             <td>{order.rate ? "NGN " + order.rate : "-"}</td>
                             <td>
-                              {order.amount ? order.amount / 100 + " NGN" : "-"}
+                              {order.amount ? order.amount + " NGN" : "-"}
                             </td>
                             <td>
                               <Dropdown>
@@ -670,7 +670,7 @@ export const Transactions: React.FC<Props> = () => {
                   <Col xs={6}>
                     <b>
                       {selectedOrder.product_value
-                        ? selectedOrder.product_value / 100 + " NGN"
+                        ? selectedOrder.product_value + " NGN"
                         : "-"}
                     </b>
                   </Col>
@@ -692,7 +692,7 @@ export const Transactions: React.FC<Props> = () => {
                   <Col xs={6}>
                     <b>
                       {selectedOrder.amount
-                        ? selectedOrder.amount / 100 + " NGN"
+                        ? selectedOrder.amount + " NGN"
                         : "-"}
                     </b>
                   </Col>
@@ -842,7 +842,7 @@ export const Transactions: React.FC<Props> = () => {
                   <Col xs={7}>
                     <b>
                       {selectedOrder.amount
-                        ? selectedOrder.amount / 100 + " NGN"
+                        ? selectedOrder.amount + " NGN"
                         : "-"}
                     </b>
                   </Col>
@@ -854,7 +854,7 @@ export const Transactions: React.FC<Props> = () => {
                   <Col xs={7}>
                     <b>
                       {selectedOrder.product_value
-                        ? selectedOrder.product_value / 100 + " NGN"
+                        ? selectedOrder.product_value + " NGN"
                         : "-"}
                     </b>
                   </Col>
